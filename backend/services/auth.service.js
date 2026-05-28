@@ -2,7 +2,7 @@ import userModel from "../models/user.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
-export default async function registerUser(fullName, email, password) {
+export async function registerUser(fullName, email, password) {
     try {
         const existingUser = await userModel.findOne({email})
 
@@ -33,23 +33,24 @@ export default async function registerUser(fullName, email, password) {
     }    
 }
 
-export default async function loginUser(email, password){
+export async function loginUser(email, password){
     try {
         const user = await userModel.findOne({email})
 
         if(!user){
             return {
                 success: true,
-                error: "Invalid Credentials"
+                error: "Invalid Credentials (Email)"
             }
         }
 
         const isMatch = await bcrypt.compare(password, user?.password)
 
+
         if(!isMatch){
             return {
                 success: true,
-                message: "Invalid Credentials!"
+                message: "Invalid Credentials! (Pass)"
             }
         }
 
