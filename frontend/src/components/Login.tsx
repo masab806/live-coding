@@ -4,6 +4,9 @@ import { useForm } from 'react-hook-form'
 import type { LoginFormData } from '../lib/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema } from '../lib/schema'
+import authService from '../services/auth.service'
+import toast from 'react-hot-toast'
+import { useAuthStore } from '../store/auth.store'
 
 const Login = () => {
 
@@ -15,8 +18,23 @@ const Login = () => {
         resolver: zodResolver(loginSchema)
     })
 
-    const onLoginSubmit = (data: LoginFormData) => {
-        console.log(data)
+    const {login: loginStore} = useAuthStore()
+
+    const onLoginSubmit = async (data: LoginFormData) => {
+        try {
+            const result = await authService.login(data)
+
+            if(result?.success && result?.message){
+                loginStore(result?.user, result?.token)
+
+                toast.success(result?.message)
+            } else {
+                toast.error(result?.error)
+            }
+
+        } catch (error) {
+            
+        }
     }
 
     return (

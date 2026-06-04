@@ -16,3 +16,9 @@ export type SignupFormData = {
     password: string,
     confirmPassword: string
 }
+
+export type UserType = {
+    fullName: string,
+    email: string,
+    token: string
+}

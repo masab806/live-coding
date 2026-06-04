@@ -64,6 +64,7 @@ export async function loginUser(email, password){
         return {
             success: true,
             message: "Login Successful!",
+            user: payload,
             token
         }
 

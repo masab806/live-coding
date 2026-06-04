@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form'
 import type { SignupFormData } from '../lib/types'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SignupSchema } from '../lib/schema'
+import authService from '../services/auth.service'
+import toast from 'react-hot-toast'
 
 const Signup = () => {
 
@@ -15,8 +17,19 @@ const Signup = () => {
         resolver: zodResolver(SignupSchema)
     })
 
-    const onSignupSubmit = (data: SignupFormData)=> {
-        console.log(data)
+    const onSignupSubmit = async (data: SignupFormData)=> {
+        try {
+           const result = await authService.signup(data)
+
+           if(result?.success && result?.message){
+                toast.success(result?.message)
+           } else {
+                toast.error(result?.error)
+           }
+            console.log(data)
+        } catch (error) {
+            throw error        
+        }
     }
 
     return (
@@ -43,7 +56,7 @@ const Signup = () => {
                     {errors.confirmPassword && (<p className='text-red-500 text-xs font-syne'>{errors.confirmPassword.message}</p>)}
                 </div>
 
-                <div className='flex items-center justify-center'><button className='p-2 bg-green-500 w-[300px] rounded-lg font-syne text-lg'>Sign Up</button></div>
+                <div className='flex items-center justify-center'><button type='submit' className='p-2 bg-green-500 w-[300px] rounded-lg font-syne text-lg cursor-pointer hover:opacity-80 transition-all'>Sign Up</button></div>
 
                 <div className='flex justify-center items-center gap-2'>
                     <div className='h-0.5 bg-gray-600 w-[100px]' />
