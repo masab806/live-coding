@@ -5,3 +5,14 @@ export interface LanguageType{
     CircleDot: string,
 }
 
+export type LoginFormData = {
+    email: string,
+    password: string
+}
+
+export type SignupFormData = {
+    fullName: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+}

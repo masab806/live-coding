@@ -124,7 +124,7 @@ async def merge_sort(arr):
                 </div>
 
                 {/* 2nd Grid */}
-               <div>
+               <div className='overflow-auto h-full'>
                     <Auth/>
                </div>
             </div>
