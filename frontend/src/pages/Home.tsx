@@ -3,17 +3,11 @@ import HomeNavbar from '../components/HomeNavbar'
 import { useState } from 'react'
 import { ZapIcon } from 'lucide-react' // Removed unused BoltIcon
 import { Editor } from '@monaco-editor/react'
+import Auth from '../components/Auth'
+import type { LanguageType } from '../lib/types'
 
-interface LanguageType{
-    name: string,
-    TextColor: string,
-    border: string,
-    CircleDot: string,
-}
 
 const HomePage = () => {
-    const [login, setLogin] = useState<boolean | null>(null)
-
     const languages: LanguageType[] = [
         {
             name: "Python",
@@ -103,7 +97,7 @@ async def merge_sort(arr):
                         <div className='flex justify-between items-center w-full'>
                             <div className='flex flex-col justify-center h-[300px] w-full'>
                                 <div className='flex items-center justify-between h-[100px] w-full '>
-                                    <p className='text-[#00E5A0] text-7xl font-syne font-bold '>Ship Faster</p>
+                                    <p className='text-[#00E5A0] text-7xl font-syne font-bold '>Ship Faster.</p>
                                     <div className='px-40 mt-20'>
                                         <div className='grid grid-cols-3 gap-10 '>
                                             {languages.map((language)=> (
@@ -130,14 +124,9 @@ async def merge_sort(arr):
                 </div>
 
                 {/* 2nd Grid */}
-                <div className='bg-[#161B22] text-white'>
-                    <div className='flex items-center w-full h-full justify-center'>
-                        <div className='bg-[#1C2128] w-[500px] h-[100px] border-2 border-[#2C3137] rounded-2xl flex items-center justify-around overflow-hidden'>
-                            <button className='font-syne text-2xl hover:bg-white hover:text-black w-full h-full transition-all cursor-pointer'>Log In</button>
-                            <button className='font-syne text-2xl w-full h-full hover:bg-white hover:text-black transition-all cursor-pointer'>Create Account</button>
-                        </div>
-                    </div>
-                </div>
+               <div>
+                    <Auth/>
+               </div>
             </div>
         </div>
     )
