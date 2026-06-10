@@ -7,6 +7,7 @@ import { loginSchema } from '../lib/schema'
 import authService from '../services/auth.service'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../store/auth.store'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
 
@@ -19,6 +20,7 @@ const Login = () => {
     })
 
     const {login: loginStore} = useAuthStore()
+    const navigate = useNavigate()
 
     const onLoginSubmit = async (data: LoginFormData) => {
         try {
@@ -26,14 +28,15 @@ const Login = () => {
 
             if(result?.success && result?.message){
                 loginStore(result?.user, result?.token)
+                navigate("/editor")
 
                 toast.success(result?.message)
             } else {
-                toast.error(result?.error)
+                toast.error(result?.error || "Internal Server Error")
             }
 
         } catch (error) {
-            
+            throw error
         }
     }
 
@@ -52,7 +55,7 @@ const Login = () => {
                     <p className='flex items-center justify-end w-[500px] text-green-500 font-syne'>Forgot Password?</p>
                 </div>
 
-                <div className='flex items-center justify-center'><button className='p-2 bg-green-500 w-[300px] rounded-lg font-syne text-lg'>Log In</button></div>
+                <div className='flex items-center justify-center'><button className='p-2 cursor-pointer hover:opacity-80 transition-all duration-300 bg-green-500 w-[300px] rounded-lg font-syne text-lg'>Log In</button></div>
 
                 <div className='flex justify-center items-center gap-2'>
                     <div className='h-0.5 bg-gray-600 w-[100px]' />

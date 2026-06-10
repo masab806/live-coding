@@ -1,4 +1,4 @@
-import { registerUser, loginUser } from "../services/auth.service.js";
+import { registerUser, loginUser, getUsersByName } from "../services/auth.service.js";
 
 export async function RegisterUser(req,res) {
     try {
@@ -51,6 +51,27 @@ export async function LoginUser(req,res) {
         return res.status(500).json({
             success: false,
             message: "Internal Server Error!"
+        })
+    }
+}
+
+export async function GetUserByName(req,res){
+    try {
+        const {fullName} = req.body
+        
+        const result = await getUsersByName(fullName)
+
+        if(!result.success){
+            return res.status(400).json(result)
+        }
+
+        return res.status(200).json(result)
+
+    } catch (error) {
+        console.log("Error In Getting Users: ", error)
+        return res.status(500).json({
+            success: false,
+            error: "Internal Server Error!"
         })
     }
 }

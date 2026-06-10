@@ -5,10 +5,10 @@ import { useAuthStore } from '../store/auth.store'
 
 const Unauthorized = () => {
 
-    const {logout} = useAuthStore()
+    const { logout } = useAuthStore()
 
-  return (
-      <div>
+    return (
+        <div>
             <HomeNavbar />
             <div className='bg-[#080A0E] text-white w-full h-screen'
                 style={{
@@ -22,12 +22,12 @@ const Unauthorized = () => {
                     <div className='flex flex-col gap-2 items-center justify-center'>
                         <p className='text-gray-500 text-9xl font-ubuntu'>403</p>
                         <p className='text-gray-500 text-5xl font-syne'>Forbidden! Unauthorized Access</p>
-                        <Link onClick={()=> logout()} to="/" className='p-2 mt-5 bg-[#00E5A0] rounded-lg hover:opacity-80 cursor-pointer font-syne text-gray-600 text-lg'>Return To Auth Page</Link>
+                        <Link onClick={() => logout()} to="/" className='p-2 mt-5 bg-[#00E5A0] rounded-lg hover:opacity-80 cursor-pointer font-syne text-gray-600 text-lg'>Return To Auth Page</Link>
                     </div>
                 </div>
             </div>
         </div>
-  )
+    )
 }
 
 export default Unauthorized

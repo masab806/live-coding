@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken"
 
 export async function registerUser(fullName, email, password) {
     try {
-        const existingUser = await userModel.findOne({email})
+        const existingUser = await userModel.findOne({ email })
 
-        if(existingUser){
+        if (existingUser) {
             return {
                 success: true,
                 error: "User Already Exists!"
@@ -30,14 +30,14 @@ export async function registerUser(fullName, email, password) {
 
     } catch (error) {
         console.log("Error Occured While Creating User: ", error)
-    }    
+    }
 }
 
-export async function loginUser(email, password){
+export async function loginUser(email, password) {
     try {
-        const user = await userModel.findOne({email})
+        const user = await userModel.findOne({ email })
 
-        if(!user){
+        if (!user) {
             return {
                 success: true,
                 error: "Invalid Credentials (Email)"
@@ -47,19 +47,20 @@ export async function loginUser(email, password){
         const isMatch = await bcrypt.compare(password, user?.password)
 
 
-        if(!isMatch){
+        if (!isMatch) {
             return {
                 success: true,
-                message: "Invalid Credentials! (Pass)"
+                error: "Invalid Credentials! (Pass)"
             }
         }
 
         const payload = {
+            _id: user?._id,
             email: user?.email,
             fullName: user?.fullName
         }
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "7h"})
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7h" })
 
         return {
             success: true,
@@ -73,3 +74,35 @@ export async function loginUser(email, password){
     }
 }
 
+export async function getUsersByName(fullName) {
+    try {
+        if (!fullName) {
+            return {
+                success: false,
+                error: "Invalid Name!"
+            }
+        }
+
+        const users = await userModel.find({
+            fullName: { $regex: fullName, $options: 'i' }
+        }).select('_id fullName')
+
+        console.log(users)
+
+        if (users.length === 0) {
+            return {
+                success: true,
+                error: "No User Found!"
+            }
+        }
+
+        return {
+            success: true,
+            message: "User: ",
+            users
+        }
+
+    } catch (error) {
+        console.log("Error In Getting User By Name: ", error)
+    }
+}

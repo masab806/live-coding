@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { SignupSchema } from '../lib/schema'
 import authService from '../services/auth.service'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 const Signup = () => {
 
@@ -17,17 +18,21 @@ const Signup = () => {
         resolver: zodResolver(SignupSchema)
     })
 
+    const navigate = useNavigate()
+
     const onSignupSubmit = async (data: SignupFormData)=> {
         try {
            const result = await authService.signup(data)
 
            if(result?.success && result?.message){
+                navigate("/")
+
                 toast.success(result?.message)
            } else {
-                toast.error(result?.error)
+                toast.error(result?.error || "Internal Server Error!")
            }
-            console.log(data)
         } catch (error) {
+            toast.error("Internal Server Error")
             throw error        
         }
     }
@@ -56,7 +61,7 @@ const Signup = () => {
                     {errors.confirmPassword && (<p className='text-red-500 text-xs font-syne'>{errors.confirmPassword.message}</p>)}
                 </div>
 
-                <div className='flex items-center justify-center'><button type='submit' className='p-2 bg-green-500 w-[300px] rounded-lg font-syne text-lg cursor-pointer hover:opacity-80 transition-all'>Sign Up</button></div>
+                <div className='flex items-center justify-center'><button type='submit' className='p-2 cursor-pointer bg-green-500 w-[300px] rounded-lg font-syne text-lg cursor-pointer hover:opacity-80 transition-all'>Sign Up</button></div>
 
                 <div className='flex justify-center items-center gap-2'>
                     <div className='h-0.5 bg-gray-600 w-[100px]' />
