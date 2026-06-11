@@ -9,6 +9,9 @@ export function initServer(server) {
         }
     })
 
+    const roomStates = {}
+    let SocketRoomId;
+
     console.log("Socket IO Initialized")
 
     io.on("connection", (socket) => {
@@ -20,31 +23,39 @@ export function initServer(server) {
             io.emit("message", data)
         })
 
-        socket.on("createRoom", async (data)=> {
+        socket.on("createRoom", async (data, callback) => {
             try {
 
                 console.log("Started!!!")
 
-                const result = await CreateRoom(123, data?._id, data?.lanugage)
+                const result = await CreateRoom(data?._id, data?.language)
 
-                if(!result){
+                if (!result) {
                     return socket.emit("roomError", {
                         message: "Missing Required Fields!"
                     })
                 }
 
-                console.log(data)
+                SocketRoomId = result?.room?._id.toString()
 
-                console.log(result)
+                socket.join(SocketRoomId)
 
-                socket.join(result?.room?._id.toString())
+                roomStates[SocketRoomId] = {
+                    code: "hello",
+                    language: data?.language || "javascript"
+                }
+
+                return callback?.({
+                    success: true,
+                    room: result?.room,
+                })
 
             } catch (error) {
                 console.log(error)
             }
         })
 
-        socket.on("showRooms", async (data)=> {
+        socket.on("showRooms", async (data) => {
             try {
                 const result = await ShowRooms()
 
@@ -54,15 +65,56 @@ export function initServer(server) {
             }
         })
 
-        socket.on("addUser", async (data)=> {
+        socket.on("codeChange", async (data) => {
             try {
-                const result = await AddUser("123", data?.userId, "456")
+                const { roomId, code } = data
 
-                console.log(result)
+                if (roomStates[roomId]) {
+                    roomStates[roomId].code = code
+                }
+
+                socket.to(roomId).emit("codeUpdate", { code })
+
+            } catch (error) {
+
+            }
+        })
+
+        socket.on("joinRoom", (data, callback) => {
+            const { roomId } = data
+
+            socket.join(roomId)
+            console.log(`Socket ${socket.id} joined room ${roomId}`)
+
+            return callback?.({
+                success: true,
+                code: roomStates[roomId]?.code || "",
+                language: roomStates[roomId]?.language || "javascript"
+            })
+        })
+
+        socket.on("addUser", async (data, callback) => {
+            try {
+
+                const { roomId, userId, participantId } = data
+
+                const result = await AddUser(roomId, userId, participantId)
+
+                socket.join(roomId)
+
+                const state = roomStates[roomId]
+
+                return callback?.({
+                    success: true,
+                    result: result?.room,
+                    code: state?.code || "1234",
+                    language: state?.language || "javascript"
+                })
+
             } catch (error) {
                 console.log(error)
             }
         })
     })
-    
+
 }

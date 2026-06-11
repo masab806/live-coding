@@ -87,7 +87,6 @@ export async function getUsersByName(fullName) {
             fullName: { $regex: fullName, $options: 'i' }
         }).select('_id fullName')
 
-        console.log(users)
 
         if (users.length === 0) {
             return {

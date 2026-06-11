@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Editor } from '@monaco-editor/react'
 import Sidebar from '../components/Sidebar'
 import Navbar from '../components/Navbar'
 import { FileOutputIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
 import { getAllUsers } from '../lib/hooks/UserHook'
 import { useDebounce } from "use-debounce"
-import { addUser, createRoom, initSocket, sendMessage, ShowMessage, showRooms } from '../services/socket.service'
+import { addUser, createRoom, initSocket, joinRoom, sendMessage, ShowMessage, showRooms } from '../services/socket.service'
 import { useAuthStore } from '../store/auth.store'
 
 type User = {
@@ -17,43 +17,94 @@ const CodeEditor = () => {
 
     const [openSidebar, setSidebar] = useState<boolean>(true)
     const [openModal, setOpenModal] = useState<boolean>(false)
+    const [Code, setCode] = useState("")
     const [input, setInput] = useState<string>("")
+    const [roomId, setRoomId] = useState<string | null>(null)
+    const isRemoteChange = useRef<boolean>(false)
+    const socketRef = useRef<any>(null)
+    const roomIdRef = useRef("")
+
 
     const [debouncedSearch] = useDebounce(input, 500)
 
     const { data, isLoading, isError } = getAllUsers(debouncedSearch)
-    const {user} = useAuthStore()
+    const { user } = useAuthStore()
 
     const allUsers = data || []
 
     useEffect(() => {
         const socket = initSocket()
+        socketRef.current = socket
 
+        console.log("Socket Connected!")
 
-        const handleRooms = (rooms)=> {
-            console.log(rooms)
+        socket.on("codeUpdate", ({ code }) => {
+            isRemoteChange.current = true
+            setCode(code)
+        })
+
+    
+        if (roomId) {
+            joinRoom({ roomId: roomId }).then((res: any) => {
+                setRoomId(roomId)
+                roomIdRef.current = roomId
+                setCode(res?.code || "")
+            })
         }
 
-        showRooms(handleRooms)
+        return () => {
+            socket.off("codeUpdate")
+        }
+    }, [])
 
-        createRoom({
+    const handleCodeChange = (value: string | undefined) => {
+        console.log("typing...", { roomId, hasSocket: !!socketRef.current })
+
+        if (isRemoteChange.current) {
+            isRemoteChange.current = false
+            return;
+        }
+
+        setCode(value)
+
+        if (roomId && socketRef.current) {
+            socketRef.current.emit("codeChange", { roomId, code: value })
+        }
+    }
+
+    const handleRoom = async (participantId: string) => {
+
+        console.log("Room Creation Started")
+
+        const room = await createRoom({
             _id: user?._id,
             language: "javascript"
         })
 
-        addUser({
-            roomId: "123",
-            participantId: "456",
-            userId: user?._id
+        console.log("User Adding")
+
+        const createdRoomId = room?.room?._id
+        setRoomId(createdRoomId)
+
+
+        const newUser = await addUser({
+            roomId: room?.room?._id,
+            userId: user?._id,
+            participantId: participantId
         })
 
-
-        console.log("Socket Connected!")
-
-        return ()=> {
-            socket.disconnect()
+        if (newUser) {
+            console.log("User Added")
         }
-    })
+
+        console.log(newUser)
+
+        console.log(room)
+    }
+
+    console.log(allUsers)
+
+
 
     return (
         <div className={`w-full h-full overflow-hidden transition-all duration-300`}>
@@ -66,8 +117,11 @@ const CodeEditor = () => {
                         width="100%"
                         theme='vs-dark'
                         defaultLanguage='javascript'
-                        defaultValue='Hello'
+                        value={Code}
+                        onChange={handleCodeChange}
                     />
+
+                    <button className='cursor-pointer' onClick={() => handleRoom()}>Create Room</button>
 
                     {/* Terminal */}
                     <div className='w-full bg-[#080A0E] min-h-[50vh] border-l-2 border-gray-800 overflow-auto'>
@@ -113,7 +167,7 @@ const CodeEditor = () => {
                             {allUsers.map((data: User) => (
                                 <ul key={data?._id} className='flex items-center justify-between p-2'>
                                     <li className='text-white font-syne text-2xl'>{data?.fullName}</li>
-                                    <li><button className='flex cursor-pointer'><PlusIcon size={32} color='white' /></button></li>
+                                    <li><button onClick={() => handleRoom(data?._id)} className='flex cursor-pointer'><PlusIcon size={32} color='white' /></button></li>
                                 </ul>
                             ))}
                         </div>

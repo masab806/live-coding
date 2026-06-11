@@ -1,7 +1,7 @@
 import liveRooms from "../models/liveRoom.js"
 import mongoose from "mongoose";
 
-export async function CreateRoom(roomId, userId, language) {
+export async function CreateRoom(userId, language) {
     try {
         const existingLiveRoom = await liveRooms.findOne({
             host: userId
@@ -16,7 +16,6 @@ export async function CreateRoom(roomId, userId, language) {
         }
 
         const newLiveRoom = await liveRooms.create({
-            roomId: roomId,
             host: userId,
             language: language
         })
@@ -47,15 +46,11 @@ export async function ShowRooms() {
 }
 
 export async function AddUser(RoomId, userId, participantId) {
-    console.log("userId:", userId, "participantId:", participantId, "RoomId:", RoomId);
 
     try {
         const existingLiveRoom = await liveRooms.findOne({
-            roomId: RoomId
+            _id: RoomId
         })
-
-        const fakeParticipantId = new mongoose.Types.ObjectId().toString();
-
 
         if (!existingLiveRoom) {
             return {
@@ -64,14 +59,14 @@ export async function AddUser(RoomId, userId, participantId) {
             }
         }
 
-        await liveRooms.updateOne(
-            { roomId: RoomId },
+        const updateRoom = await liveRooms.updateOne(
+            { _id: RoomId },
             {
                 $addToSet: {
                     participants: {
                         $each: [
                             new mongoose.Types.ObjectId(userId),
-                            new mongoose.Types.ObjectId(fakeParticipantId)
+                            new mongoose.Types.ObjectId(participantId)
                         ]
                     }
                 }
@@ -82,7 +77,8 @@ export async function AddUser(RoomId, userId, participantId) {
 
         return {
             success: true,
-            message: "Room Updated"
+            message: "Room Updated",
+            room: updateRoom
         }
 
     } catch (error) {

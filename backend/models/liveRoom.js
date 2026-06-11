@@ -18,6 +18,10 @@ const liveRoomSchema = new mongoose.Schema({
         ref: 'users',
     },
 
+    code: {
+        type: String
+    },
+
     language: {
         type: String,
     }
