@@ -46,7 +46,7 @@ export async function ShowRooms() {
 }
 
 export async function AddUser(RoomId, userId, participantId) {
-
+    console.log(RoomId)
     try {
         const existingLiveRoom = await liveRooms.findOne({
             _id: RoomId
@@ -83,5 +83,28 @@ export async function AddUser(RoomId, userId, participantId) {
 
     } catch (error) {
         console.log("An Error Occured While Adding User: ", error)
+    }
+}
+
+
+export async function getRoomId(userId) {
+
+
+    console.log("User Id is: ",userId)
+
+    try {
+        const room = await liveRooms.findOne({
+            host: userId
+        })
+        
+        console.log("Room is: ", room)
+
+        return {
+            success: true,
+            room
+        }
+
+    } catch (error) {
+        console.log("Error While Getting Room Id: ", error)
     }
 }

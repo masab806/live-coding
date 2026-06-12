@@ -1,7 +1,6 @@
 import {io, Socket} from "socket.io-client"
-import type { ClientToServerEvents, ServerToClientEvents } from "../lib/types"
 
-let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null
+let socket: any | null = null
 
 export const initSocket = ()=> {
     if(!socket){

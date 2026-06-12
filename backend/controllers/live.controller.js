@@ -1,4 +1,6 @@
-import { AddUser, CreateRoom } from "../services/live.service.js"
+import liveRooms from "../models/liveRoom.js"
+import { AddUser, CreateRoom, getRoomId } from "../services/live.service.js"
+import mongoose from "mongoose"
 
 export async function CreateLiveRoom(req,res) {
     try {
@@ -36,3 +38,23 @@ export async function AddUserToRoom(req,res) {
         console.log("Error While Adding User To Room: ", error)
     }
 }
+
+export async function fetchRoomId(req,res) {
+    try {
+        const userId = req.params.userId
+
+        const result = await getRoomId(userId)
+        
+        if(!result.success){
+            return res.status(400).json({
+                message: "Failed To Fetch!"
+            })
+        }
+
+        return res.status(200).json(result)
+
+    } catch (error) {
+        console.log("Error In Fetching Room (Controller): ", error)
+    }
+}
+

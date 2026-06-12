@@ -10,12 +10,14 @@ export function initServer(server) {
     })
 
     const roomStates = {}
-    let SocketRoomId;
 
     console.log("Socket IO Initialized")
 
     io.on("connection", (socket) => {
         console.log(`Socket is Connected ${socket.id}`)
+
+        let SocketRoomId;
+
 
         socket.on("message", (data) => {
             console.log("Data Recieved!", data)
@@ -69,8 +71,13 @@ export function initServer(server) {
             try {
                 const { roomId, code } = data
 
+                console.log("codeChange received:", roomId, "state exists:", !!roomStates[roomId])
+
+
                 if (roomStates[roomId]) {
                     roomStates[roomId].code = code
+                } else {
+                    roomStates[roomId] = { code, language: "javascript" }
                 }
 
                 socket.to(roomId).emit("codeUpdate", { code })
@@ -86,6 +93,10 @@ export function initServer(server) {
             socket.join(roomId)
             console.log(`Socket ${socket.id} joined room ${roomId}`)
 
+            const room = io.sockets.adapter.rooms.get(roomId)
+            console.log(`Room ${roomId} has ${room?.size} sockets:`, [...(room || [])])
+
+
             return callback?.({
                 success: true,
                 code: roomStates[roomId]?.code || "",
@@ -100,9 +111,14 @@ export function initServer(server) {
 
                 const result = await AddUser(roomId, userId, participantId)
 
+                console.log(result)
+
                 socket.join(roomId)
 
                 const state = roomStates[roomId]
+
+                console.log("addUser - room state:", state)
+
 
                 return callback?.({
                     success: true,

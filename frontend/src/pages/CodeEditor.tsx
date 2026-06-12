@@ -1,17 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Editor } from '@monaco-editor/react'
 import Sidebar from '../components/Sidebar'
 import Navbar from '../components/Navbar'
 import { FileOutputIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
 import { getAllUsers } from '../lib/hooks/UserHook'
 import { useDebounce } from "use-debounce"
-import { addUser, createRoom, initSocket, joinRoom, sendMessage, ShowMessage, showRooms } from '../services/socket.service'
+import { addUser, createRoom, initSocket, joinRoom } from '../services/socket.service'
 import { useAuthStore } from '../store/auth.store'
+import { getMyRoom } from '../lib/hooks/roomHook'
+import type { RoomData, User } from '../lib/types'
 
-type User = {
-    _id: string
-    fullName: string
-}
 
 const CodeEditor = () => {
 
@@ -28,7 +26,10 @@ const CodeEditor = () => {
     const [debouncedSearch] = useDebounce(input, 500)
 
     const { data, isLoading, isError } = getAllUsers(debouncedSearch)
+
     const { user } = useAuthStore()
+
+    const { data: roomData } = getMyRoom(user?._id || "") as { data: RoomData | undefined }
 
     const allUsers = data || []
 
@@ -38,72 +39,89 @@ const CodeEditor = () => {
 
         console.log("Socket Connected!")
 
-        socket.on("codeUpdate", ({ code }) => {
+        socket.on("codeUpdate", ({ code }: { code: string }) => {
             isRemoteChange.current = true
             setCode(code)
         })
 
-    
-        if (roomId) {
-            joinRoom({ roomId: roomId }).then((res: any) => {
-                setRoomId(roomId)
-                roomIdRef.current = roomId
-                setCode(res?.code || "")
-            })
-        }
 
         return () => {
             socket.off("codeUpdate")
         }
     }, [])
 
+
+    useEffect(() => {
+        const existingRoomId = roomData?.room?._id
+
+
+        console.log("Joining Room!!!!!!!")
+
+        console.log(existingRoomId)
+
+        if (existingRoomId && socketRef.current) {
+            joinRoom({ roomId: existingRoomId }).then((res: any) => {
+                setRoomId(existingRoomId)
+                roomIdRef.current = existingRoomId
+                setCode(res?.code || "")
+                console.log("Joined Room: ", existingRoomId)
+            })
+        }
+
+    }, [roomData])
+
     const handleCodeChange = (value: string | undefined) => {
-        console.log("typing...", { roomId, hasSocket: !!socketRef.current })
 
         if (isRemoteChange.current) {
             isRemoteChange.current = false
             return;
         }
 
+        if (!value) return;
+
         setCode(value)
 
-        if (roomId && socketRef.current) {
-            socketRef.current.emit("codeChange", { roomId, code: value })
+        if (roomIdRef.current && socketRef.current) {
+            socketRef.current.emit("codeChange", { roomId: roomIdRef.current, code: value })
         }
     }
 
-    const handleRoom = async (participantId: string) => {
+    const handleRoom = async () => {
+        try {
+            console.log("Room Creation Started")
 
-        console.log("Room Creation Started")
+            const room = await createRoom({
+                _id: user?._id,
+                language: "javascript"
+            })
 
-        const room = await createRoom({
-            _id: user?._id,
-            language: "javascript"
-        })
+            console.log(room)
 
-        console.log("User Adding")
+            const createdRoomId = room?.room?._id
 
-        const createdRoomId = room?.room?._id
-        setRoomId(createdRoomId)
-
-
-        const newUser = await addUser({
-            roomId: room?.room?._id,
-            userId: user?._id,
-            participantId: participantId
-        })
-
-        if (newUser) {
-            console.log("User Added")
+            setRoomId(createdRoomId)
+            roomIdRef.current = createdRoomId
+        } catch (error) {
+            console.log("An Error Occured: ", error)
         }
 
-        console.log(newUser)
-
-        console.log(room)
     }
 
-    console.log(allUsers)
+    const addUserToRoom = async (participantId: string) => {
+        try {
+            const newUser = await addUser({
+                roomId: roomId,
+                userId: user?._id,
+                participantId: participantId
+            })
 
+            if (newUser) {
+                console.log("User Added")
+            }
+        } catch (error) {
+            console.log("An Error Occured: ", error)
+        }
+    }
 
 
     return (
@@ -164,10 +182,22 @@ const CodeEditor = () => {
                             </div>
                         </div>
                         <div className='px-10 py-5 grid gap-5'>
+                            {isLoading && (
+                                <div>
+                                    <p>Loading</p>
+                                </div>
+                            )}
+
+                            {isError && (
+                                <div>
+                                    <p>Error</p>
+                                </div>
+                            )}
+
                             {allUsers.map((data: User) => (
                                 <ul key={data?._id} className='flex items-center justify-between p-2'>
                                     <li className='text-white font-syne text-2xl'>{data?.fullName}</li>
-                                    <li><button onClick={() => handleRoom(data?._id)} className='flex cursor-pointer'><PlusIcon size={32} color='white' /></button></li>
+                                    <li><button onClick={() => addUserToRoom(data?._id)} className='flex cursor-pointer'><PlusIcon size={32} color='white' /></button></li>
                                 </ul>
                             ))}
                         </div>
