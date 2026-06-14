@@ -29,8 +29,6 @@ const CodeEditor = () => {
 
     const { user } = useAuthStore()
 
-    const { data: roomData } = getMyRoom(user?._id || "") as { data: RoomData | undefined }
-
     const allUsers = data || []
 
     useEffect(() => {
@@ -38,6 +36,19 @@ const CodeEditor = () => {
         socketRef.current = socket
 
         console.log("Socket Connected!")
+
+        const incomingRoomId = location.state?.roomId
+
+        if (incomingRoomId) {
+            setRoomId(incomingRoomId)
+            roomIdRef.current = incomingRoomId  
+
+            joinRoom({ roomId: incomingRoomId }).then((res: any) => {
+                setCode(res?.code || "")
+                console.log("Joined room:", incomingRoomId)
+            })
+        }
+
 
         socket.on("codeUpdate", ({ code }: { code: string }) => {
             isRemoteChange.current = true
@@ -51,24 +62,19 @@ const CodeEditor = () => {
     }, [])
 
 
-    useEffect(() => {
-        const existingRoomId = roomData?.room?._id
+    // useEffect(() => {
+    //     const existingRoomId = roomData?.room?._id
 
+    //     if (existingRoomId && socketRef.current) {
+    //         joinRoom({ roomId: existingRoomId }).then((res: any) => {
+    //             setRoomId(existingRoomId)
+    //             roomIdRef.current = existingRoomId
+    //             setCode(res?.code || "")
+    //             console.log("Joined Room: ", existingRoomId)
+    //         })
+    //     }
 
-        console.log("Joining Room!!!!!!!")
-
-        console.log(existingRoomId)
-
-        if (existingRoomId && socketRef.current) {
-            joinRoom({ roomId: existingRoomId }).then((res: any) => {
-                setRoomId(existingRoomId)
-                roomIdRef.current = existingRoomId
-                setCode(res?.code || "")
-                console.log("Joined Room: ", existingRoomId)
-            })
-        }
-
-    }, [roomData])
+    // }, [roomData])
 
     const handleCodeChange = (value: string | undefined) => {
 
@@ -86,26 +92,6 @@ const CodeEditor = () => {
         }
     }
 
-    const handleRoom = async () => {
-        try {
-            console.log("Room Creation Started")
-
-            const room = await createRoom({
-                _id: user?._id,
-                language: "javascript"
-            })
-
-            console.log(room)
-
-            const createdRoomId = room?.room?._id
-
-            setRoomId(createdRoomId)
-            roomIdRef.current = createdRoomId
-        } catch (error) {
-            console.log("An Error Occured: ", error)
-        }
-
-    }
 
     const addUserToRoom = async (participantId: string) => {
         try {
@@ -138,8 +124,6 @@ const CodeEditor = () => {
                         value={Code}
                         onChange={handleCodeChange}
                     />
-
-                    <button className='cursor-pointer' onClick={() => handleRoom()}>Create Room</button>
 
                     {/* Terminal */}
                     <div className='w-full bg-[#080A0E] min-h-[50vh] border-l-2 border-gray-800 overflow-auto'>

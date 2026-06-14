@@ -33,7 +33,7 @@ export async function CreateRoom(userId, language) {
 
 export async function ShowRooms() {
     try {
-        const allRooms = await liveRooms.find()
+        const allRooms = await liveRooms.find().select('_id roomName').lean()
 
         return {
             success: true,
@@ -88,8 +88,6 @@ export async function AddUser(RoomId, userId, participantId) {
 
 
 export async function getRoomId(userId) {
-
-
     console.log("User Id is: ",userId)
 
     try {
@@ -106,5 +104,74 @@ export async function getRoomId(userId) {
 
     } catch (error) {
         console.log("Error While Getting Room Id: ", error)
+    }
+}
+
+export async function SaveCode(roomId, code) {
+    try {
+        const room = await liveRooms.findOne({
+            _id: roomId
+        })
+
+        if(!room){
+            return {
+                success: false,
+                message: "No Room Found!"
+            }
+        }
+
+        room.code = code
+
+        await room.save()
+        
+    } catch (error) {
+        console.log("Error While Saving Code: ", error)
+    }
+}
+
+export async function GetAllRooms() {
+    try {
+        const allRooms = await liveRooms.find().select('_id roomName').lean()
+
+        return {
+            success: true,
+            allRooms
+        }
+
+    } catch (error) {
+        console.log("Error: ", error)
+    }
+}
+
+export async function AddParticipant(roomId, userId) {
+    try {
+         const updateRoom = await liveRooms.updateOne(
+            { _id: roomId },
+            {
+                $addToSet: {
+                    participants: {
+                        $each: [
+                            new mongoose.Types.ObjectId(userId)
+                        ]
+                    }
+                }
+            }
+        );
+
+        if(!updateRoom){
+            return {
+                success: false,
+                message: "Not Updated!"
+            }
+        }
+
+        return {
+            success: true
+        }
+
+
+
+    } catch (error) {
+        console.log("Error To Add Participant: ", error)
     }
 }

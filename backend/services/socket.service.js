@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { AddUser, CreateRoom, ShowRooms } from "./live.service.js";
+import { AddParticipant, AddUser, CreateRoom, SaveCode, ShowRooms } from "./live.service.js";
 
 export function initServer(server) {
     const io = new Server(server, {
@@ -76,6 +76,7 @@ export function initServer(server) {
 
                 if (roomStates[roomId]) {
                     roomStates[roomId].code = code
+                    SaveCode(roomId, code)
                 } else {
                     roomStates[roomId] = { code, language: "javascript" }
                 }
@@ -87,14 +88,22 @@ export function initServer(server) {
             }
         })
 
-        socket.on("joinRoom", (data, callback) => {
-            const { roomId } = data
+        socket.on("joinRoom", async (data, callback) => {
+            const { roomId, userId } = data
 
             socket.join(roomId)
             console.log(`Socket ${socket.id} joined room ${roomId}`)
 
+            const result = await AddParticipant(roomId, userId)
+
+            if(result) {
+                console.log("Participant added")
+            }
+
             const room = io.sockets.adapter.rooms.get(roomId)
             console.log(`Room ${roomId} has ${room?.size} sockets:`, [...(room || [])])
+
+            console.log(roomStates[roomId]?.code)
 
 
             return callback?.({

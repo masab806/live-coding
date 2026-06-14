@@ -16,3 +16,10 @@ export const getMyRoom = (userId: string) => {
         enabled: !!userId
     })
 }
+
+export const fetchAllRooms = ()=> {
+    return useQuery({
+        queryKey: ['allRooms'],
+        queryFn: ()=> liveService.fetchAllRooms()
+    })
+}

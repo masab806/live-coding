@@ -17,6 +17,19 @@ const liveService = {
             console.log("Error While Fetching Room Id (Client): ", error)
             throw error
         }
+    },
+
+    fetchAllRooms: async ()=> {
+        try {
+            const res = await api.get("/api/live/allRooms")
+
+            const responseData = res.data?.allRooms
+
+            return responseData
+
+        } catch (error) {
+            console.log("Error: ", error)            
+        }
     }
 }
 

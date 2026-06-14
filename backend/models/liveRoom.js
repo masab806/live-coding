@@ -1,9 +1,8 @@
 import mongoose from "mongoose"
 
 const liveRoomSchema = new mongoose.Schema({
-    roomId: {
-        type: String,
-        unique: true,
+    roomName: {
+        type: String
     },
 
     participants: [

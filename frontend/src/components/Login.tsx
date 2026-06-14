@@ -28,7 +28,7 @@ const Login = () => {
 
             if(result?.success && result?.message){
                 loginStore(result?.user, result?.token)
-                navigate("/editor")
+                navigate("/create")
 
                 toast.success(result?.message)
             } else {

@@ -4,6 +4,7 @@ import CodeEditor from "../pages/CodeEditor";
 import HomePage from "../pages/Home";
 import NotFound from "../components/NotFound";
 import ProtectedRoutes from "./protectedRoutes";
+import RoomLobby from "../pages/RoomLobby";
 
 const router = createBrowserRouter([
    {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
                   element: <CodeEditor/>
                }
             ]
+         },
+         {
+            path: "/create",
+            element: <RoomLobby/>
          },
          {
             path: "*",

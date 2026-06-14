@@ -1,5 +1,5 @@
 import liveRooms from "../models/liveRoom.js"
-import { AddUser, CreateRoom, getRoomId } from "../services/live.service.js"
+import { AddUser, CreateRoom, GetAllRooms, getRoomId } from "../services/live.service.js"
 import mongoose from "mongoose"
 
 export async function CreateLiveRoom(req,res) {
@@ -58,3 +58,19 @@ export async function fetchRoomId(req,res) {
     }
 }
 
+
+export async function FetchAllRooms(req,res) {
+    try {
+        const result = await GetAllRooms()
+        
+
+        if(!result.success){
+            return res.status(400).json(result)
+        }
+
+        return res.status(200).json(result)
+
+    } catch (error) {
+        console.log("Error In Fetching Rooms: ", error)
+    }
+}
