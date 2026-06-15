@@ -30,7 +30,7 @@ export function initServer(server) {
 
                 console.log("Started!!!")
 
-                const result = await CreateRoom(data?._id, data?.language)
+                const result = await CreateRoom(data?.roomName, data?._id, data?.language)
 
                 if (!result) {
                     return socket.emit("roomError", {
@@ -57,22 +57,9 @@ export function initServer(server) {
             }
         })
 
-        socket.on("showRooms", async (data) => {
-            try {
-                const result = await ShowRooms()
-
-                io.emit("showRooms", result)
-            } catch (error) {
-                console.log(error)
-            }
-        })
-
         socket.on("codeChange", async (data) => {
             try {
                 const { roomId, code } = data
-
-                console.log("codeChange received:", roomId, "state exists:", !!roomStates[roomId])
-
 
                 if (roomStates[roomId]) {
                     roomStates[roomId].code = code
@@ -94,11 +81,11 @@ export function initServer(server) {
             socket.join(roomId)
             console.log(`Socket ${socket.id} joined room ${roomId}`)
 
-            const result = await AddParticipant(roomId, userId)
+            // const result = await AddParticipant(roomId, userId)
 
-            if(result) {
-                console.log("Participant added")
-            }
+            // if(result) {
+            //     console.log("Participant added")
+            // }
 
             const room = io.sockets.adapter.rooms.get(roomId)
             console.log(`Room ${roomId} has ${room?.size} sockets:`, [...(room || [])])
@@ -113,6 +100,15 @@ export function initServer(server) {
             })
         })
 
+        socket.on("logoutRoom", (roomId)=>{
+            try {
+                socket.leave(roomId)
+
+            } catch (error) {
+                console.log("Error Occured: ", error)
+            }
+        })
+
         socket.on("addUser", async (data, callback) => {
             try {
 
@@ -121,8 +117,6 @@ export function initServer(server) {
                 const result = await AddUser(roomId, userId, participantId)
 
                 console.log(result)
-
-                socket.join(roomId)
 
                 const state = roomStates[roomId]
 

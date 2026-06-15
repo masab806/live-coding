@@ -9,6 +9,7 @@ import { addUser, createRoom, initSocket, joinRoom } from '../services/socket.se
 import { useAuthStore } from '../store/auth.store'
 import { getMyRoom } from '../lib/hooks/roomHook'
 import type { RoomData, User } from '../lib/types'
+import { useLocation } from 'react-router-dom'
 
 
 const CodeEditor = () => {
@@ -31,17 +32,25 @@ const CodeEditor = () => {
 
     const allUsers = data || []
 
+    const location = useLocation()
+
+    const incomingRoomId = location?.state?.roomId
+
+    const incommingLanguage = location?.state?.language
+
+
     useEffect(() => {
         const socket = initSocket()
         socketRef.current = socket
 
         console.log("Socket Connected!")
 
-        const incomingRoomId = location.state?.roomId
+
+        console.log(incomingRoomId)
 
         if (incomingRoomId) {
             setRoomId(incomingRoomId)
-            roomIdRef.current = incomingRoomId  
+            roomIdRef.current = incomingRoomId
 
             joinRoom({ roomId: incomingRoomId }).then((res: any) => {
                 setCode(res?.code || "")
@@ -61,20 +70,6 @@ const CodeEditor = () => {
         }
     }, [])
 
-
-    // useEffect(() => {
-    //     const existingRoomId = roomData?.room?._id
-
-    //     if (existingRoomId && socketRef.current) {
-    //         joinRoom({ roomId: existingRoomId }).then((res: any) => {
-    //             setRoomId(existingRoomId)
-    //             roomIdRef.current = existingRoomId
-    //             setCode(res?.code || "")
-    //             console.log("Joined Room: ", existingRoomId)
-    //         })
-    //     }
-
-    // }, [roomData])
 
     const handleCodeChange = (value: string | undefined) => {
 
@@ -114,13 +109,13 @@ const CodeEditor = () => {
         <div className={`w-full h-full overflow-hidden transition-all duration-300`}>
             <Navbar setOpenModal={setOpenModal} />
             <div className='flex w-full overflow-hidden'>
-                <Sidebar openSidebar={openSidebar} setSidebar={setSidebar} />
+                <Sidebar openSidebar={openSidebar} setSidebar={setSidebar} roomId={incomingRoomId} />
                 <div className='flex-1 min-w-0'>
                     <Editor
                         height="50vh"
                         width="100%"
                         theme='vs-dark'
-                        defaultLanguage='javascript'
+                        defaultLanguage={incommingLanguage.toLowerCase()}
                         value={Code}
                         onChange={handleCodeChange}
                     />

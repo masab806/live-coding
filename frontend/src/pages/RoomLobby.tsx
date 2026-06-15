@@ -28,12 +28,13 @@ const RoomLobby = () => {
     const handleCreateRoom = async () => {
         try {
             const room = await createRoom({
+                roomName,
                 _id: user?._id,
                 language,
             })
             const createdRoomId = room?.room?._id
             if (createdRoomId) {
-                navigate('/editor', { state: { roomId: createdRoomId } })
+                navigate('/editor', { state: { roomId: createdRoomId, language: language } })
             }
         } catch (error) {
             console.error('An error occurred:', error)
@@ -49,16 +50,17 @@ const RoomLobby = () => {
 
         console.log(room, joinRoomId)
 
-         if (joinRoomId) {
-                    const result = await joinRoom({ roomId: joinRoomId })
+        if (joinRoomId) {
+            const result = await joinRoom({ roomId: joinRoomId })
 
-                    console.log("roomJoined: ", result)
-                }
+            console.log("roomJoined: ", result)
+        }
 
         navigate('/editor', {
             state: {
                 roomId: joinRoomId,
                 roomName: joinRoomName,
+                language: language
             },
         })
     }

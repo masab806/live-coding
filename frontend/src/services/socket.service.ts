@@ -19,13 +19,6 @@ export const initSocket = ()=> {
     return socket
 }
 
-export const sendMessage = (data)=> {
-    socket?.emit("message", data)
-}
-
-export const ShowMessage = (callback)=> {
-    socket?.on("message", callback)
-}
 
 export const createRoom = (data: { _id: string; language: string }) => {
     return new Promise((resolve, reject) => {
@@ -65,8 +58,13 @@ export const joinRoom = (data: { roomId: string }) => {
     })
 }
 
-export const showRooms = (callback)=> {
-    socket?.on("showRooms", callback)
+export const disconnectRoom = (data: {roomId: string})=> {
+
+    console.log("Room Id is: ", data)
+
+    if(!socket) return
+
+   (socket as any)?.emit("logoutRoom", data)
 }
 
 export const getSocket = () => socket

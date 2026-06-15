@@ -1,7 +1,10 @@
 import liveRooms from "../models/liveRoom.js"
 import mongoose from "mongoose";
 
-export async function CreateRoom(userId, language) {
+export async function CreateRoom(roomName, userId, language) {
+
+    console.log(roomName, userId, language)
+
     try {
         const existingLiveRoom = await liveRooms.findOne({
             host: userId
@@ -16,6 +19,7 @@ export async function CreateRoom(userId, language) {
         }
 
         const newLiveRoom = await liveRooms.create({
+            roomName: roomName,
             host: userId,
             language: language
         })
@@ -73,8 +77,6 @@ export async function AddUser(RoomId, userId, participantId) {
             }
         );
 
-        await existingLiveRoom.save()
-
         return {
             success: true,
             message: "Room Updated",
@@ -88,13 +90,13 @@ export async function AddUser(RoomId, userId, participantId) {
 
 
 export async function getRoomId(userId) {
-    console.log("User Id is: ",userId)
+    console.log("User Id is: ", userId)
 
     try {
         const room = await liveRooms.findOne({
             host: userId
         })
-        
+
         console.log("Room is: ", room)
 
         return {
@@ -113,7 +115,7 @@ export async function SaveCode(roomId, code) {
             _id: roomId
         })
 
-        if(!room){
+        if (!room) {
             return {
                 success: false,
                 message: "No Room Found!"
@@ -123,7 +125,7 @@ export async function SaveCode(roomId, code) {
         room.code = code
 
         await room.save()
-        
+
     } catch (error) {
         console.log("Error While Saving Code: ", error)
     }
@@ -145,20 +147,16 @@ export async function GetAllRooms() {
 
 export async function AddParticipant(roomId, userId) {
     try {
-         const updateRoom = await liveRooms.updateOne(
+        const updateRoom = await liveRooms.updateOne(
             { _id: roomId },
             {
                 $addToSet: {
-                    participants: {
-                        $each: [
-                            new mongoose.Types.ObjectId(userId)
-                        ]
-                    }
+                    participants: new mongoose.Types.ObjectId(userId)
                 }
             }
         );
 
-        if(!updateRoom){
+        if (!updateRoom) {
             return {
                 success: false,
                 message: "Not Updated!"
@@ -173,5 +171,23 @@ export async function AddParticipant(roomId, userId) {
 
     } catch (error) {
         console.log("Error To Add Participant: ", error)
+    }
+}
+
+export async function DeleteRoom(roomId) {
+    try {
+        const room = await liveRooms.findOne({
+            _id: roomId
+        })
+
+        if (!room) {
+            return {
+                success: true,
+                message: "No Room Found!"
+            }
+        }
+
+    } catch (error) {
+
     }
 }

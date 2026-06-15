@@ -6,9 +6,10 @@ export async function CreateLiveRoom(req,res) {
     try {
         // Use AuthMiddlware but later
         const {userId} = req.params
-        const language = req.body
+        const {roomName, language} = req.body
+        
 
-        const result = await CreateRoom(userId, language)
+        const result = await CreateRoom(roomName, userId, language)
 
         if(!result?.success){
             return res.status(400).json(result)
@@ -17,7 +18,7 @@ export async function CreateLiveRoom(req,res) {
         return res.status(200).json(result)
 
     } catch (error) {
-        console.log("Error While Creating Live Room: ", error)        
+        // console.log("Error While Creating Live Room: ", error)        
     }
 }
 
@@ -74,3 +75,5 @@ export async function FetchAllRooms(req,res) {
         console.log("Error In Fetching Rooms: ", error)
     }
 }
+
+
