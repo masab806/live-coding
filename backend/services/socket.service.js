@@ -11,7 +11,6 @@ export function initServer(server) {
 
     const roomStates = {}
 
-    // console.log("Socket IO Initialized")
 
     io.on("connection", (socket) => {
         console.log(`Socket is Connected ${socket.id}`)
@@ -19,16 +18,9 @@ export function initServer(server) {
         let SocketRoomId;
 
 
-        socket.on("message", (data) => {
-            console.log("Data Recieved!", data)
-
-            io.emit("message", data)
-        })
-
         socket.on("createRoom", async (data, callback) => {
             try {
 
-                // console.log("Started!!!")
 
                 const result = await CreateRoom(data?.roomName, data?._id, data?.language)
 
@@ -71,7 +63,7 @@ export function initServer(server) {
                 socket.to(roomId).emit("codeUpdate", { code })
 
             } catch (error) {
-
+                console.log("Error On Code Change: ", error)
             }
         })
 
@@ -81,18 +73,8 @@ export function initServer(server) {
             socket.join(roomId)
             console.log(`Socket ${socket.id} joined room ${roomId}`)
 
-            // const result = await AddParticipant(roomId, userId)
-
-            // if(result) {
-            //     console.log("Participant added")
-            // }
-
             const room = io.sockets.adapter.rooms.get(roomId)
-            // console.log(`Room ${roomId} has ${room?.size} sockets:`, [...(room || [])])
-
-            // console.log(roomStates[roomId]?.code)
-
-
+           
             return callback?.({
                 success: true,
                 code: roomStates[roomId]?.code || "",
@@ -116,12 +98,7 @@ export function initServer(server) {
 
                 const result = await AddUser(roomId, userId, participantId)
 
-                // console.log(result)
-
                 const state = roomStates[roomId]
-
-                // console.log("addUser - room state:", state)
-
 
                 return callback?.({
                     success: true,

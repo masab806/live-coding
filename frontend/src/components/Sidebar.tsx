@@ -17,7 +17,7 @@ const Sidebar = ({ openSidebar, setSidebar, roomId }: SidebarProps) => {
     initSocket()
   }, [])
 
-  const {logout} = useAuthStore()
+  const { logout } = useAuthStore()
 
   const navigate = useNavigate()
 
@@ -32,7 +32,7 @@ const Sidebar = ({ openSidebar, setSidebar, roomId }: SidebarProps) => {
       toast.success("Logged Out!")
 
     } catch (error) {
-        console.log("Error While Logging Out: ", error)
+      console.log("Error While Logging Out: ", error)
     }
 
   }

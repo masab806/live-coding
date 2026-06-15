@@ -13,7 +13,6 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
   const [edit, setEdit] = useState<Boolean>(false)
   const {data: room} = getMyRoom()
 
-  console.log(room)
 
   return (
     <div className='w-full bg-black h-[80px] flex'>

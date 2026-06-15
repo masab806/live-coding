@@ -3,10 +3,6 @@ import axios from 'axios'
 import api from '../../api/api'
 import liveService from '../../services/live.service'
 
-type User = {
-    _id: string,
-    fullName: string
-}
 
 export const getMyRoom = () => {
     return useQuery({
