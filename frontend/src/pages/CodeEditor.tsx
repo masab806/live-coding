@@ -78,7 +78,7 @@ const CodeEditor = () => {
             return;
         }
 
-        if (!value) return;
+        if (value === undefined) return;
 
         setCode(value)
 
