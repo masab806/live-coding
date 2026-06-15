@@ -42,7 +42,7 @@ export async function AddUserToRoom(req,res) {
 
 export async function fetchRoomId(req,res) {
     try {
-        const userId = req.params.userId
+        const userId = req.user._id
 
         const result = await getRoomId(userId)
         

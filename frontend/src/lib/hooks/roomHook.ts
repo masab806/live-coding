@@ -8,12 +8,10 @@ type User = {
     fullName: string
 }
 
-export const getMyRoom = (userId: string) => {
-    console.log(userId)
+export const getMyRoom = () => {
     return useQuery({
-        queryKey: ["room", userId],
-        queryFn: ()=> liveService.fetchRoomId(userId),
-        enabled: !!userId
+        queryKey: ["room"],
+        queryFn: ()=> liveService.fetchRoomId(),
     })
 }
 

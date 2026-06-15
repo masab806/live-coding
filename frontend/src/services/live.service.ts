@@ -1,15 +1,19 @@
 import api from "../api/api";
-import type { RoomData } from "../lib/types";
+import { useAuthStore } from "../store/auth.store";
 
 const liveService = {
-    fetchRoomId: async (userId: string) => {
+    fetchRoomId: async () => {
 
-        console.log(userId)
+        const token = useAuthStore.getState().token
 
         try {
-            const res = await api.get(`/api/live/room/${userId}`)
+            const res = await api.get(`/api/live/room`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
 
-            const responseData = res.data
+            const responseData = res.data?.room
 
             return responseData
 

@@ -3,8 +3,6 @@ import mongoose from "mongoose";
 
 export async function CreateRoom(roomName, userId, language) {
 
-    console.log(roomName, userId, language)
-
     try {
         const existingLiveRoom = await liveRooms.findOne({
             host: userId
@@ -50,7 +48,6 @@ export async function ShowRooms() {
 }
 
 export async function AddUser(RoomId, userId, participantId) {
-    console.log(RoomId)
     try {
         const existingLiveRoom = await liveRooms.findOne({
             _id: RoomId
@@ -90,14 +87,13 @@ export async function AddUser(RoomId, userId, participantId) {
 
 
 export async function getRoomId(userId) {
-    console.log("User Id is: ", userId)
-
     try {
         const room = await liveRooms.findOne({
-            host: userId
-        })
-
-        console.log("Room is: ", room)
+            $or: [
+                { host: userId },
+                { participants: userId }
+            ]
+        });
 
         return {
             success: true,

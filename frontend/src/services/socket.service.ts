@@ -4,7 +4,11 @@ let socket: any | null = null
 
 export const initSocket = ()=> {
     if(!socket){
-        socket = io("http://localhost:3000")
+        socket = io("http://localhost:3000", {
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000
+        })
 
         socket.on("connect", ()=> {
             console.log("Connected: ", socket?.id)
