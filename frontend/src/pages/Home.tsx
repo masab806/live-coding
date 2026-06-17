@@ -1,50 +1,24 @@
 import React from 'react'
 import HomeNavbar from '../components/HomeNavbar'
 import { useState } from 'react'
-import { ZapIcon } from 'lucide-react' // Removed unused BoltIcon
+import { ZapIcon } from 'lucide-react'
 import { Editor } from '@monaco-editor/react'
 import Auth from '../components/Auth'
 import type { LanguageType } from '../lib/types'
 
-
 const HomePage = () => {
     const languages: LanguageType[] = [
-        {
-            name: "Python",
-            TextColor: "text-blue-500",
-            border: "border-blue-500",
-            CircleDot: "bg-blue-500"
-        },
-        {
-            name: "JavaScript",
-            TextColor: "text-yellow-500",
-            border: "border-yellow-500",
-            CircleDot: "bg-yellow-500"
-        },
-        {
-            name: "Ruby",
-            TextColor: "text-red-500",
-            border: "border-red-500",
-            CircleDot: "bg-red-500"
-        },
-        {
-            name: "Node",
-            TextColor: "text-green-500",
-            border: "border-green-500",
-            CircleDot: "bg-green-500"
-        },
-        {
-            name: "C#",
-            TextColor: "text-purple-500",
-            border: "border-purple-500",
-            CircleDot: "bg-purple-500"
-        }
+        { name: "Python", TextColor: "text-blue-500", border: "border-blue-500", CircleDot: "bg-blue-500" },
+        { name: "JavaScript", TextColor: "text-yellow-500", border: "border-yellow-500", CircleDot: "bg-yellow-500" },
+        { name: "Ruby", TextColor: "text-red-500", border: "border-red-500", CircleDot: "bg-red-500" },
+        { name: "Node", TextColor: "text-green-500", border: "border-green-500", CircleDot: "bg-green-500" },
+        { name: "C#", TextColor: "text-purple-500", border: "border-purple-500", CircleDot: "bg-purple-500" }
     ]
 
     return (
         <div className="w-full min-h-screen overflow-hidden">
             <div><HomeNavbar /></div>
-            <div className='grid grid-cols-[4fr_2fr] w-full h-screen'>
+            <div className='flex flex-col lg:grid lg:grid-cols-[4fr_2fr] w-full min-h-screen'>
 
                 {/* 1st Grid */}
                 <div className='bg-[#080A0E] text-white w-full h-full'
@@ -56,21 +30,23 @@ const HomePage = () => {
                         backgroundSize: '40px 40px'
                     }}>
 
-                    <div className='py-36 px-5 text-2xl h-full'>
-                        <div className='flex items-start justify-between'>
-                            <div>
-                                <div className='text-[#00E5A0] bg-[#0B2B27] flex w-fit items-center border-[#076C51] gap-2 rounded-lg  border-2  p-2 mb-6'>
+                    <div className='py-16 lg:py-36 px-4 sm:px-8 text-2xl h-full'>
+                        <div className='flex flex-col lg:flex-row items-start justify-between gap-6'>
+                            <div className='w-full lg:w-auto'>
+                                <div className='text-[#00E5A0] bg-[#0B2B27] flex w-fit items-center border-[#076C51] gap-2 rounded-lg border-2 p-2 mb-6'>
                                     <span><ZapIcon size={22} /></span>
-                                    <p className="text-xl font-semibold">real-time collaborative IDE</p>
+                                    <p className="text-base sm:text-xl font-semibold">real-time collaborative IDE</p>
                                 </div>
 
-                                <div className='w-[600px] font-syne text-gray-500 leading-relaxed'>Built for modern engineering teams.Break down silos with instantaneous, zero-latency pairing environments.Deploy pipelines straight from the browser without context switching.</div>
+                                <div className='w-full max-w-[600px] font-syne text-gray-500 leading-relaxed text-sm sm:text-base'>
+                                    Built for modern engineering teams. Break down silos with instantaneous, zero-latency pairing environments. Deploy pipelines straight from the browser without context switching.
+                                </div>
                             </div>
 
-                            <div className='mr-10 border-2 w-fit border-[#2C3137] rounded-xl overflow-hidden shadow-2xl'>
+                            <div className='w-full lg:w-2xl lg:mr-10 border-2 border-[#2C3137] rounded-xl overflow-hidden shadow-2xl'>
                                 <Editor
                                     height="20vh"
-                                    width="30vw"
+                                    width="100%"
                                     theme='vs-dark'
                                     defaultValue={`# live session — 3 users editing
 async def merge_sort(arr):
@@ -83,50 +59,43 @@ async def merge_sort(arr):
                                         minimap: { enabled: false },
                                         renderLineHighlight: "none",
                                         automaticLayout: true,
-                                        scrollbar: {
-                                            vertical: 'hidden',
-                                            horizontal: 'hidden'
-                                        }
+                                        scrollbar: { vertical: 'hidden', horizontal: 'hidden' }
                                     }}
                                 />
                             </div>
-
-
                         </div>
 
-                        <div className='flex justify-between items-center w-full'>
-                            <div className='flex flex-col justify-center h-[300px] w-full'>
-                                <div className='flex items-center justify-between h-[100px] w-full '>
-                                    <p className='text-[#00E5A0] text-7xl font-syne font-bold '>Ship Faster.</p>
-                                    <div className='px-40 mt-20'>
-                                        <div className='grid grid-cols-3 gap-10 '>
-                                            {languages.map((language)=> (
-                                                <div className={`border-2  p-2 cursor-pointer transition-all duration-300 ease-out hover:translate-y-1 rounded-lg hover: ${language.TextColor} ${language.border} flex items-center gap-2 w-fit`}>
+                        <div className='flex justify-between items-center w-full mt-8 lg:mt-0'>
+                            <div className='flex flex-col justify-center w-full'>
+                                <div className='flex flex-col lg:flex-row items-start lg:items-center justify-between lg:h-[200px] w-full gap-6'>
+                                    <p className='text-[#00E5A0] text-4xl sm:text-5xl lg:text-7xl font-syne font-bold'>Ship Faster.</p>
+                                    <div className='w-full lg:w-auto lg:px-40 lg:mt-20'>
+                                        <div className='grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-3 gap-3 lg:gap-10'>
+                                            {languages.map((language) => (
+                                                <div key={language.name} className={`border-2 p-2 cursor-pointer transition-all duration-300 ease-out hover:translate-y-1 rounded-lg ${language.TextColor} ${language.border} flex items-center gap-2 w-fit`}>
                                                     <p className={`w-1 p-1 ${language.CircleDot} rounded-full`}></p>
-                                                    <p className='font-syne text-lg'>{language.name}</p>
+                                                    <p className='font-syne text-sm lg:text-lg'>{language.name}</p>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <p className='text-gray-400 font-bold font-syne text-xl leading-relaxed'>
+                                <div className='mt-4 lg:mt-0'>
+                                    <p className='text-gray-400 font-bold font-syne text-base sm:text-xl leading-relaxed'>
                                         Pair program across 8 runtimes. <br />
                                         No setup. Share a link. <br />
                                         Start coding instantly.
                                     </p>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
 
                 {/* 2nd Grid */}
-               <div className='overflow-auto h-full'>
-                    <Auth/>
-               </div>
+                <div className='overflow-auto h-full'>
+                    <Auth />
+                </div>
             </div>
         </div>
     )

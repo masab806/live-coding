@@ -23,7 +23,6 @@ const CodeEditor = () => {
     const socketRef = useRef<any>(null)
     const roomIdRef = useRef("")
 
-
     const [debouncedSearch] = useDebounce(input, 500)
 
     const { data, isLoading, isError } = getAllUsers(debouncedSearch)
@@ -35,17 +34,13 @@ const CodeEditor = () => {
     const location = useLocation()
 
     const incomingRoomId = location?.state?.roomId
-
     const incommingLanguage = location?.state?.language
-
 
     useEffect(() => {
         const socket = initSocket()
         socketRef.current = socket
 
         console.log("Socket Connected!")
-
-
         console.log(incomingRoomId)
 
         if (incomingRoomId) {
@@ -58,12 +53,10 @@ const CodeEditor = () => {
             })
         }
 
-
         socket.on("codeUpdate", ({ code }: { code: string }) => {
             isRemoteChange.current = true
             setCode(code)
         })
-
 
         return () => {
             socket.off("codeUpdate")
@@ -72,7 +65,6 @@ const CodeEditor = () => {
 
 
     const handleCodeChange = (value: string | undefined) => {
-
         if (isRemoteChange.current) {
             isRemoteChange.current = false
             return;
@@ -124,43 +116,46 @@ const CodeEditor = () => {
                     <div className='w-full bg-[#080A0E] min-h-[50vh] border-l-2 border-gray-800 overflow-auto'>
                         <div className='border-b-2 border-gray-800'>
                             <ul className='flex items-center p-4'>
-                                <li className='text-white text-lg flex items-center font-syne gap-2'><FileOutputIcon /> Output</li>
+                                <li className='text-white text-base sm:text-lg flex items-center font-syne gap-2'><FileOutputIcon /> Output</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
+
             {openModal && (
                 <div
-                    className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-all duration-300
-  ${openModal ? "opacity-100 visible" : "opacity-0 invisible"}`}
+                    className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-all duration-300 px-4
+                        ${openModal ? "opacity-100 visible" : "opacity-0 invisible"}`}
                 >
                     <div
-                        className={`w-[800px] h-[800px] rounded-2xl bg-gray-900 transition-all duration-300 transform
-    ${openModal ? "scale-100" : "scale-95"}`}
+                        className={`w-full max-w-[800px] h-[90vh] sm:h-[800px] rounded-2xl bg-gray-900 transition-all duration-300 transform overflow-y-auto
+                            ${openModal ? "scale-100" : "scale-95"}`}
                     >
                         <div className='flex items-center justify-between'>
-                            <div className='flex flex-col p-10'>
-                                <p className='text-white font-syne text-5xl'>Invite Friends!</p>
-                                <p className='text-lg text-gray-500 font-ubuntu font-semibold'>
+                            <div className='flex flex-col p-5 sm:p-10'>
+                                <p className='text-white font-syne text-3xl sm:text-5xl'>Invite Friends!</p>
+                                <p className='text-sm sm:text-lg text-gray-500 font-ubuntu font-semibold'>
                                     Collaborate Together
                                 </p>
                             </div>
 
                             <button
-                                className='mr-5 cursor-pointer'
+                                className='mr-3 sm:mr-5 cursor-pointer'
                                 onClick={() => setOpenModal(false)}
                             >
                                 <XIcon size={32} color='white' />
                             </button>
                         </div>
-                        <div className='px-10'>
+
+                        <div className='px-5 sm:px-10'>
                             <div className='flex items-center justify-start bg-gray-400 rounded-2xl w-full p-3'>
-                                <input value={input} onChange={(e) => setInput(e.target.value)} type="text" className='w-full outline-none text-lg font-syne' />
+                                <input value={input} onChange={(e) => setInput(e.target.value)} type="text" className='w-full outline-none text-base sm:text-lg font-syne' />
                                 <SearchIcon />
                             </div>
                         </div>
-                        <div className='px-10 py-5 grid gap-5'>
+
+                        <div className='px-5 sm:px-10 py-5 grid gap-5'>
                             {isLoading && (
                                 <div>
                                     <p>Loading</p>
@@ -175,7 +170,7 @@ const CodeEditor = () => {
 
                             {allUsers.map((data: User) => (
                                 <ul key={data?._id} className='flex items-center justify-between p-2'>
-                                    <li className='text-white font-syne text-2xl'>{data?.fullName}</li>
+                                    <li className='text-white font-syne text-lg sm:text-2xl'>{data?.fullName}</li>
                                     <li><button onClick={() => addUserToRoom(data?._id)} className='flex cursor-pointer'><PlusIcon size={32} color='white' /></button></li>
                                 </ul>
                             ))}
@@ -183,7 +178,6 @@ const CodeEditor = () => {
                     </div>
                 </div>
             )}
-
         </div>
     )
 }
