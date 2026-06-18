@@ -187,3 +187,28 @@ export async function DeleteRoom(roomId) {
 
     }
 }
+
+export async function SaveRoomName(roomId, roomName){
+    try {
+        if(!roomId || !roomName){
+            return {
+                success: false,
+                message: "Not Found!"
+            }
+        }
+
+        const room = await liveRooms.findOne({
+            _id: roomId
+        })
+
+
+        room.roomName = roomName
+
+        await room.save()
+
+
+
+    } catch (error) {
+        console.log("Error While Saving Room: ", error)
+    }
+}

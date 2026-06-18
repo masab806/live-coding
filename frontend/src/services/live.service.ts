@@ -3,9 +3,7 @@ import { useAuthStore } from "../store/auth.store";
 
 const liveService = {
     fetchRoomId: async () => {
-
         const token = useAuthStore.getState().token
-
         try {
             const res = await api.get(`/api/live/room`, {
                 headers: {
@@ -24,8 +22,13 @@ const liveService = {
     },
 
     fetchAllRooms: async ()=> {
+        const token = useAuthStore.getState().token
         try {
-            const res = await api.get("/api/live/allRooms")
+            const res = await api.get("/api/live/allRooms", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
 
             const responseData = res.data?.allRooms
 
@@ -34,7 +37,26 @@ const liveService = {
         } catch (error) {
             console.log("Error: ", error)            
         }
+    },
+
+    saveRoomName: async (data: {roomId: string, roomName: string})=> {
+        const token = useAuthStore.getState().token
+        try {
+            const res = await api.post("/api/live/saveRoom", data, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
+
+            const responseData = res.data
+
+            return responseData
+
+        } catch (error) {
+            console.log("An Error Occured: ", error)
+        }
     }
+
 }
 
 export default liveService

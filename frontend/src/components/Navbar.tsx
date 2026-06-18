@@ -1,7 +1,9 @@
-import React, { useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { PencilIcon, PlayIcon, PlusIcon, SquareAsterisk, XIcon } from 'lucide-react'
 import { useAuthStore } from '../store/auth.store'
 import { getMyRoom } from '../lib/hooks/roomHook'
+import liveService from '../services/live.service'
+import toast from 'react-hot-toast'
 
 interface NavbarProps {
   setOpenModal: Dispatch<SetStateAction<boolean>>
@@ -11,7 +13,34 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
 
   const { user } = useAuthStore()
   const [edit, setEdit] = useState<Boolean>(false)
+  const [roomName, setroomName] = useState<string>("")
   const { data: room } = getMyRoom()
+
+  useEffect(() => {
+    if(room?.roomName){
+      setroomName(roomName)
+    }
+  }, [])
+  
+
+  const handleEdit = async ()=> {
+    try {
+      const result = await liveService.saveRoomName({
+        roomId: room?._id,
+        roomName
+      })
+
+      if(result){
+        toast.success("Room Name Changed!")
+      }
+
+      setEdit(false)
+
+
+    } catch (error) {
+      console.log("Error: ", error)
+    }
+  }
 
   return (
     <div className='w-full bg-black min-h-[60px] sm:h-[80px] flex items-center'>
@@ -21,7 +50,8 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
           <div className='flex items-center gap-2'>
             {edit ? (
               <div className='flex items-center gap-2 border-2 border-gray-600 p-1.5 sm:p-2 rounded-2xl'>
-                <input type="text" className='w-full text-white outline-none text-sm sm:text-base' placeholder='Project Name....' />
+                <button onClick={()=> handleEdit()} className='text-white bg-blue-500 p-1 rounded-2xl cursor-pointer hover:opacity-80 transition-all duration-300'>Save</button>
+                <input value={roomName} onChange={(e)=> setroomName(e.target.value)} type="text" className='w-full text-white outline-none text-sm sm:text-base' placeholder='Project Name....' />
                 <button onClick={() => setEdit(false)} className='cursor-pointer shrink-0'><XIcon color='white' size={18} /></button>
               </div>
             ) : (
@@ -34,7 +64,7 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
       </div>
 
       <div className='hidden md:flex p-4 shrink-0'>
-        <p className='text-white font-syne font-semibold mr-5 text-sm truncate max-w-[200px]'>Room Id: {room?._id}</p>
+        <p className='text-white font-syne font-semibold mr-5 text-sm truncate max-w-[300px]'>Room Id: {room?._id}</p>
       </div>
 
       <div className='flex items-center gap-5 hover:opacity-80 cursor-pointer shrink-0'>
