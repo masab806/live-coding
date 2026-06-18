@@ -29,7 +29,7 @@ const RoomLobby = () => {
         try {
             const room = await createRoom({
                 roomName,
-                _id: user?._id,
+                _id: user?._id ?? "",
                 language,
             })
             const createdRoomId = room?.room?._id
@@ -46,7 +46,7 @@ const RoomLobby = () => {
 
         console.log(allRooms)
 
-        const room = allRooms?.find((r) => r._id === joinRoomId)
+        const room = allRooms?.find((r: string) => r._id === joinRoomId)
 
         console.log(room, joinRoomId)
 

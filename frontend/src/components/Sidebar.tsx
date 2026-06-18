@@ -24,7 +24,9 @@ const Sidebar = ({ openSidebar, setSidebar, roomId }: SidebarProps) => {
 
   const handleLogout = async () => {
     try {
-      disconnectRoom(roomId)
+      disconnectRoom({
+        roomId
+      })
 
       logout()
 
@@ -43,11 +45,8 @@ const Sidebar = ({ openSidebar, setSidebar, roomId }: SidebarProps) => {
       await liveService.deleteRoom({
         roomId
       })
-
       toast.success("Room Deleted!")
       navigate("/")
-
-
     } catch (error) {
       console.log("An Error Occured: ", error)
     }

@@ -1,20 +1,20 @@
-import {io, Socket} from "socket.io-client"
+import { io } from "socket.io-client"
 
 let socket: any | null = null
 
-export const initSocket = ()=> {
-    if(!socket){
+export const initSocket = () => {
+    if (!socket) {
         socket = io("http://localhost:3000", {
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000
         })
 
-        socket.on("connect", ()=> {
+        socket.on("connect", () => {
             console.log("Connected: ", socket?.id)
         })
-    
-        socket.on("disconnect", ()=>{
+
+        socket.on("disconnect", () => {
             console.log("Disconnected: ", socket?.id)
         })
     }
@@ -37,10 +37,10 @@ export const createRoom = (data: { _id: string; language: string }) => {
     });
 };
 
-export const addUser = (data: {roomId: string, userId: string, participantId: string })=> {
-    return new Promise((resolve, reject)=> {
-        (socket as any)?.emit("addUser", data, (response: any)=> {
-            if(!response){
+export const addUser = (data: { roomId: string, userId: string, participantId: string }) => {
+    return new Promise((resolve, reject) => {
+        (socket as any)?.emit("addUser", data, (response: any) => {
+            if (!response) {
                 reject("No Response From Server!")
                 return
             }
@@ -62,13 +62,11 @@ export const joinRoom = (data: { roomId: string }) => {
     })
 }
 
-export const disconnectRoom = (data: {roomId: string})=> {
+export const disconnectRoom = (data: { roomId: string }) => {
 
-    console.log("Room Id is: ", data)
+    if (!socket) return
 
-    if(!socket) return
-
-   (socket as any)?.emit("logoutRoom", data)
+    (socket as any)?.emit("logoutRoom", data)
 }
 
 export const getSocket = () => socket

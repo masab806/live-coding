@@ -5,10 +5,9 @@ import Navbar from '../components/Navbar'
 import { FileOutputIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
 import { getAllUsers } from '../lib/hooks/UserHook'
 import { useDebounce } from "use-debounce"
-import { addUser, createRoom, initSocket, joinRoom } from '../services/socket.service'
+import { addUser, initSocket, joinRoom } from '../services/socket.service'
 import { useAuthStore } from '../store/auth.store'
-import { getMyRoom } from '../lib/hooks/roomHook'
-import type { RoomData, User } from '../lib/types'
+import type { User } from '../lib/types'
 import { useLocation } from 'react-router-dom'
 
 
@@ -83,8 +82,8 @@ const CodeEditor = () => {
     const addUserToRoom = async (participantId: string) => {
         try {
             const newUser = await addUser({
-                roomId: roomId,
-                userId: user?._id,
+                roomId: roomId ?? "",
+                userId: user?._id ?? "",
                 participantId: participantId
             })
 
