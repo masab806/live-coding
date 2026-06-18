@@ -1,5 +1,7 @@
 import { Server } from "socket.io";
 import { AddParticipant, AddUser, CreateRoom, SaveCode, ShowRooms } from "./live.service.js";
+import liveRooms from "../models/liveRoom.js";
+import userModel from "../models/user.js";
 
 export function initServer(server) {
     const io = new Server(server, {
@@ -74,15 +76,84 @@ export function initServer(server) {
             console.log(`Socket ${socket.id} joined room ${roomId}`)
 
             const room = io.sockets.adapter.rooms.get(roomId)
-           
+
             return callback?.({
                 success: true,
                 code: roomStates[roomId]?.code || "",
-                language: roomStates[roomId]?.language || "javascript"
+                language: roomStates[roomId]?.language || "javascript",
+                typingUsers: new Set()
             })
         })
 
-        socket.on("logoutRoom", (roomId)=>{
+        socket.on("startTyping", async (roomId, userId) => {
+            try {
+                const state = roomStates[roomId]
+
+                if (!state) return
+
+                const user = await userModel.findOne({
+                    _id: userId
+                })
+
+                if (!state.typingUsers) {
+                    state.typingUsers = new Set()
+                }
+
+                state.typingUsers.add(user?.fullName)
+
+                io.to(roomId).emit("typingUpdate", {
+                    users: Array.from(state?.typingUsers)
+                })
+
+
+
+            } catch (error) {
+                console.log("Error: ", error)
+            }
+        })
+
+        socket.on("stopTyping", async (roomId, userId) => {
+            try {
+                const state = roomStates[roomId]
+
+                if (!state?.typingUsers) return
+
+                const user = await userModel.findOne({
+                    _id: userId
+                })
+
+                state?.typingUsers.delete(user?.fullName)
+
+                io.to(roomId).emit("typingUpdate", {
+                    users: Array.from(state?.typingUsers)
+                })
+
+            } catch (error) {
+                console.log("An Error Occured: ", error)
+            }
+
+        })
+
+        socket.on("disconnect", () => {
+            try {
+                for (const roomId in roomStates) {
+                    const state = roomStates[roomId]
+
+                    if (state?.typingUsers.has(socket.id)) {
+                        state?.typingUsers.delete(socket.id)
+                    }
+
+                    io.to(roomId).emit("typingUpdate", {
+                        users: Array.from(state?.typingUsers)
+                    })
+                }
+            } catch (error) {
+                console.log("Error: ", error)
+            }
+        })
+
+
+        socket.on("logoutRoom", (roomId) => {
             try {
                 socket.leave(roomId)
 

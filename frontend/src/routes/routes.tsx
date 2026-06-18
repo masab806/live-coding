@@ -27,13 +27,8 @@ const router = createBrowserRouter([
             ]
          },
          {
-            path: "create",
-            element: <ProtectedRoutes/>,
-            children: [
-               {
-                  element: <RoomLobby/>
-               }
-            ]
+            path: "/create",
+            element: <RoomLobby/>,
          },
          {
             path: "*",

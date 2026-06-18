@@ -62,6 +62,20 @@ export const joinRoom = (data: { roomId: string }) => {
     })
 }
 
+export const startTyping = (roomId: string, userId: string)=> {
+    socket.emit("startTyping", roomId, userId)
+}
+
+export const stopTyping = (roomId: string, userId: string)=>{
+    socket.emit("stopTyping", roomId, userId)
+}
+
+export const onTypingUpdate = (callback: (users: string[]) => void) => {
+    socket.on("typingUpdate", (data: { users: string[] }) => {
+        callback(data.users)
+    })
+}
+
 export const disconnectRoom = (data: { roomId: string }) => {
 
     if (!socket) return

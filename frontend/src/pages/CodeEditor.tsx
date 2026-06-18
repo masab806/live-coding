@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar'
 import { FileOutputIcon, PlusIcon, SearchIcon, XIcon } from 'lucide-react'
 import { getAllUsers } from '../lib/hooks/UserHook'
 import { useDebounce } from "use-debounce"
-import { addUser, initSocket, joinRoom } from '../services/socket.service'
+import { addUser, initSocket, joinRoom, startTyping, stopTyping } from '../services/socket.service'
 import { useAuthStore } from '../store/auth.store'
 import type { User } from '../lib/types'
 import { useLocation } from 'react-router-dom'
@@ -21,6 +21,8 @@ const CodeEditor = () => {
     const isRemoteChange = useRef<boolean>(false)
     const socketRef = useRef<any>(null)
     const roomIdRef = useRef("")
+    const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const [typingUsers, settypingUsers] = useState<string[]>([])
 
     const [debouncedSearch] = useDebounce(input, 500)
 
@@ -49,12 +51,20 @@ const CodeEditor = () => {
             joinRoom({ roomId: incomingRoomId }).then((res: any) => {
                 setCode(res?.code || "")
                 console.log("Joined room:", incomingRoomId)
+                settypingUsers(res?.users || [])
             })
         }
 
         socket.on("codeUpdate", ({ code }: { code: string }) => {
             isRemoteChange.current = true
             setCode(code)
+            if(typingTimeoutRef.current){
+                clearTimeout(typingTimeoutRef.current)
+            }
+        })
+
+        socket.on("typingUpdate", ({users}: {users: string[]}) => {
+            settypingUsers(users.filter((fullName) => fullName !== user?.fullName))
         })
 
         return () => {
@@ -62,6 +72,7 @@ const CodeEditor = () => {
         }
     }, [])
 
+    console.log(typingUsers)
 
     const handleCodeChange = (value: string | undefined) => {
         if (isRemoteChange.current) {
@@ -71,7 +82,19 @@ const CodeEditor = () => {
 
         if (value === undefined) return;
 
+        startTyping(roomId ?? "", user?._id ?? "")
+
         setCode(value)
+
+        if(typingTimeoutRef.current){
+            clearTimeout(typingTimeoutRef.current)
+        }
+
+        typingTimeoutRef.current = setTimeout(()=> {
+            stopTyping(roomId ?? "", user?._id ?? "")
+        }, 1500)
+        
+
 
         if (roomIdRef.current && socketRef.current) {
             socketRef.current.emit("codeChange", { roomId: roomIdRef.current, code: value })
@@ -98,7 +121,7 @@ const CodeEditor = () => {
 
     return (
         <div className={`w-full h-full overflow-hidden transition-all duration-300`}>
-            <Navbar setOpenModal={setOpenModal} />
+            <Navbar setOpenModal={setOpenModal} typingUsers={typingUsers}/>
             <div className='flex w-full overflow-hidden'>
                 <Sidebar openSidebar={openSidebar} setSidebar={setSidebar} roomId={incomingRoomId} />
                 <div className='flex-1 min-w-0'>

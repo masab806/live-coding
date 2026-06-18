@@ -7,9 +7,10 @@ import toast from 'react-hot-toast'
 
 interface NavbarProps {
   setOpenModal: Dispatch<SetStateAction<boolean>>
+  typingUsers: string[]
 }
 
-const Navbar = ({ setOpenModal }: NavbarProps) => {
+const Navbar = ({ setOpenModal, typingUsers }: NavbarProps) => {
 
   const { user } = useAuthStore()
   const [edit, setEdit] = useState<Boolean>(false)
@@ -17,20 +18,22 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
   const { data: room } = getMyRoom()
 
   useEffect(() => {
-    if(room?.roomName){
+    if (room?.roomName) {
       setroomName(roomName)
     }
   }, [])
-  
 
-  const handleEdit = async ()=> {
+
+
+
+  const handleEdit = async () => {
     try {
       const result = await liveService.saveRoomName({
         roomId: room?._id,
         roomName
       })
 
-      if(result){
+      if (result) {
         toast.success("Room Name Changed!")
       }
 
@@ -50,8 +53,8 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
           <div className='flex items-center gap-2'>
             {edit ? (
               <div className='flex items-center gap-2 border-2 border-gray-600 p-1.5 sm:p-2 rounded-2xl'>
-                <button onClick={()=> handleEdit()} className='text-white bg-blue-500 p-1 rounded-2xl cursor-pointer hover:opacity-80 transition-all duration-300'>Save</button>
-                <input value={roomName} onChange={(e)=> setroomName(e.target.value)} type="text" className='w-full text-white outline-none text-sm sm:text-base' placeholder='Project Name....' />
+                <button onClick={() => handleEdit()} className='text-white bg-blue-500 p-1 rounded-2xl cursor-pointer hover:opacity-80 transition-all duration-300'>Save</button>
+                <input value={roomName} onChange={(e) => setroomName(e.target.value)} type="text" className='w-full text-white outline-none text-sm sm:text-base' placeholder='Project Name....' />
                 <button onClick={() => setEdit(false)} className='cursor-pointer shrink-0'><XIcon color='white' size={18} /></button>
               </div>
             ) : (
@@ -61,7 +64,19 @@ const Navbar = ({ setOpenModal }: NavbarProps) => {
           </div>
           <p className='text-white text-xs sm:text-base truncate'>{user?.fullName || "Anonymous"}</p>
         </div>
+        {typingUsers.length > 0 && (
+          <div className='bg-blue-500/80 transition-all duration-300 p-2 ml-16 rounded-2xl opacity-90'>
+            <p className='text-white font-syne font-semibold'>
+              {typingUsers.length === 1
+                ? `${typingUsers[0]} is typing...`
+                : typingUsers.length === 2
+                  ? `${typingUsers.join(" and ")} are typing...`
+                  : `${typingUsers.length} people are typing...`}
+            </p>
+          </div>
+        )}
       </div>
+
 
       <div className='hidden md:flex p-4 shrink-0'>
         <p className='text-white font-syne font-semibold mr-5 text-sm truncate max-w-[300px]'>Room Id: {room?._id}</p>
