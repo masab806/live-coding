@@ -1,5 +1,5 @@
 import liveRooms from "../models/liveRoom.js"
-import { AddUser, CreateRoom, GetAllRooms, getRoomId, SaveRoomName } from "../services/live.service.js"
+import { AddUser, CreateRoom, DeleteRoom, GetAllRooms, getRoomId, SaveRoomName } from "../services/live.service.js"
 import mongoose from "mongoose"
 
 export async function CreateLiveRoom(req,res) {
@@ -82,15 +82,24 @@ export async function SaveRoom(req,res) {
 
         const result = await SaveRoomName(roomId, roomName)
 
-        // if(!result.success){
-        //     return res.status(400).json(result)
-        // }
-
-
         return res.status(200).json(result)
 
     } catch (error) {
         console.log("Error While Saving Room (Controller): ", error)
+    }
+}
+
+export async function DeleteRoomById(req,res) {
+    try {
+        const {roomId} = req.body
+
+        const result = await DeleteRoom(roomId)
+
+        return res.status(200).json(result)
+
+
+    } catch (error) {
+        console.log("Error In Deleting Room (Controller): ", error)
     }
 }
 

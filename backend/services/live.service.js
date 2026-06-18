@@ -171,6 +171,7 @@ export async function AddParticipant(roomId, userId) {
 }
 
 export async function DeleteRoom(roomId) {
+
     try {
         const room = await liveRooms.findOne({
             _id: roomId
@@ -183,8 +184,11 @@ export async function DeleteRoom(roomId) {
             }
         }
 
-    } catch (error) {
+        await room.deleteOne()
+        
 
+    } catch (error) {
+        console.log("Error While Deleting Room: ", error)
     }
 }
 
