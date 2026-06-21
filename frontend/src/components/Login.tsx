@@ -46,7 +46,7 @@ const Login = () => {
                 </div>
                 <div className='flex flex-col gap-2 items-start w-full max-w-[500px] lg:ml-12'>
                     <p className='text-base sm:text-xl font-syne text-gray-400 flex gap-2'><LockIcon size={22} /> Password</p>
-                    <input {...register("password")} className='p-3 bg-gray-800 w-full rounded-lg' placeholder='• • • • • •' />
+                    <input {...register("password")} type='password' className='p-3 bg-gray-800 w-full rounded-lg' placeholder='• • • • • •' />
                     {errors.password && (<p className='text-sm text-red-500'>{errors.password.message}</p>)}
                     <p className='flex items-center justify-end w-full text-green-500 font-syne'>Forgot Password?</p>
                 </div>

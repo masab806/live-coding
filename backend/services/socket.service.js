@@ -2,6 +2,8 @@ import { Server } from "socket.io";
 import { AddParticipant, AddUser, CreateRoom, SaveCode, ShowRooms } from "./live.service.js";
 import liveRooms from "../models/liveRoom.js";
 import userModel from "../models/user.js";
+import { createAdapter } from "@socket.io/redis-adapter"
+import Redis from "ioredis";
 
 export function initServer(server) {
     const io = new Server(server, {
@@ -10,6 +12,9 @@ export function initServer(server) {
             methods: ["GET", "POST"]
         }
     })
+
+    const pubClient = new Redis(process.env.REDIS_URL || "http://localhost:6739")
+    const subClient = pubClient.duplicate()
 
     const roomStates = {}
 
@@ -104,7 +109,6 @@ export function initServer(server) {
                 io.to(roomId).emit("typingUpdate", {
                     users: Array.from(state?.typingUsers)
                 })
-
 
 
             } catch (error) {
