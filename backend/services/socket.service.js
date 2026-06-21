@@ -4,6 +4,7 @@ import liveRooms from "../models/liveRoom.js";
 import userModel from "../models/user.js";
 import { createAdapter } from "@socket.io/redis-adapter"
 import Redis from "ioredis";
+import client from "../config/redis.js"
 
 export function initServer(server) {
     const io = new Server(server, {
@@ -13,8 +14,14 @@ export function initServer(server) {
         }
     })
 
-    const pubClient = new Redis(process.env.REDIS_URL || "http://localhost:6739")
+    const pubClient = new Redis(process.env.REDIS_URL || "redis://localhost:6379")
+    pubClient.on("error", (err) => console.error("Redis Pub Client Error:", err))
+
+
     const subClient = pubClient.duplicate()
+    subClient.on("error", (err) => console.error("Redis Sub Client Error:", err))
+
+    io.adapter(createAdapter(pubClient, subClient))
 
     const roomStates = {}
 
@@ -27,9 +34,8 @@ export function initServer(server) {
 
         socket.on("createRoom", async (data, callback) => {
             try {
-
-
                 const result = await CreateRoom(data?.roomName, data?._id, data?.language)
+                const userId = data?._id
 
                 if (!result) {
                     return socket.emit("roomError", {
@@ -39,7 +45,15 @@ export function initServer(server) {
 
                 SocketRoomId = result?.room?._id.toString()
 
+                console.log(SocketRoomId)
+
                 socket.join(SocketRoomId)
+
+                await client.hset(`room:${SocketRoomId}`, {
+                    code: "hello",
+                    language: data?.language || "javascript"
+                })
+
 
                 roomStates[SocketRoomId] = {
                     code: "hello",
@@ -60,12 +74,18 @@ export function initServer(server) {
             try {
                 const { roomId, code } = data
 
-                if (roomStates[roomId]) {
-                    roomStates[roomId].code = code
+                const cachedChange = await client.hgetall(`room:${roomId}`)
+
+                if (cachedChange) {
+                    // roomStates[roomId].code = code
+                    await client.hset(`room:${roomId}`, {
+                        code: code
+                    })
                     SaveCode(roomId, code)
-                } else {
-                    roomStates[roomId] = { code, language: "javascript" }
                 }
+                // } else {
+                //     roomStates[roomId] = { code, language: "javascript" }
+                // }
 
                 socket.to(roomId).emit("codeUpdate", { code })
 
@@ -80,12 +100,14 @@ export function initServer(server) {
             socket.join(roomId)
             console.log(`Socket ${socket.id} joined room ${roomId}`)
 
+            const cachedData = await client.hgetall(`room:${roomId}`)
+
             const room = io.sockets.adapter.rooms.get(roomId)
 
             return callback?.({
                 success: true,
-                code: roomStates[roomId]?.code || "",
-                language: roomStates[roomId]?.language || "javascript",
+                code: cachedData.code || "",
+                language: cachedData.language || "javascript",
                 typingUsers: new Set()
             })
         })
