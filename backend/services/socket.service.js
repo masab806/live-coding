@@ -55,10 +55,10 @@ export function initServer(server) {
                 })
 
 
-                roomStates[SocketRoomId] = {
-                    code: "hello",
-                    language: data?.language || "javascript"
-                }
+                // roomStates[SocketRoomId] = {
+                //     code: "hello",
+                //     language: data?.language || "javascript"
+                // }
 
                 return callback?.({
                     success: true,
@@ -77,15 +77,11 @@ export function initServer(server) {
                 const cachedChange = await client.hgetall(`room:${roomId}`)
 
                 if (cachedChange) {
-                    // roomStates[roomId].code = code
                     await client.hset(`room:${roomId}`, {
                         code: code
                     })
                     SaveCode(roomId, code)
                 }
-                // } else {
-                //     roomStates[roomId] = { code, language: "javascript" }
-                // }
 
                 socket.to(roomId).emit("codeUpdate", { code })
 
@@ -108,28 +104,27 @@ export function initServer(server) {
                 success: true,
                 code: cachedData.code || "",
                 language: cachedData.language || "javascript",
-                typingUsers: new Set()
             })
         })
 
         socket.on("startTyping", async (roomId, userId) => {
             try {
-                const state = roomStates[roomId]
-
-                if (!state) return
+                const state = await client.smembers(`room:${roomId}:typing`)
 
                 const user = await userModel.findOne({
                     _id: userId
                 })
 
-                if (!state.typingUsers) {
-                    state.typingUsers = new Set()
+                if (!state.length) {
+                    await client.sadd(`room:${roomId}:typing`, user?.fullName)
                 }
 
-                state.typingUsers.add(user?.fullName)
+                const allUsers = await client.smembers(`room:${roomId}:typing`)
+
+                console.log(allUsers)
 
                 io.to(roomId).emit("typingUpdate", {
-                    users: Array.from(state?.typingUsers)
+                    users: Array.from(allUsers)
                 })
 
 
@@ -140,18 +135,20 @@ export function initServer(server) {
 
         socket.on("stopTyping", async (roomId, userId) => {
             try {
-                const state = roomStates[roomId]
+                const state = await client.smembers(`room:${roomId}:typing`)
 
-                if (!state?.typingUsers) return
+                if (!state?.length) return
 
                 const user = await userModel.findOne({
                     _id: userId
                 })
 
-                state?.typingUsers.delete(user?.fullName)
+                await client.srem(`room:${roomId}:typing`, user?.fullName)
+
+                const allUsers = await client.smembers(`room:${roomId}:typing`)
 
                 io.to(roomId).emit("typingUpdate", {
-                    users: Array.from(state?.typingUsers)
+                    users: Array.from(allUsers)
                 })
 
             } catch (error) {

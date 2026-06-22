@@ -45,6 +45,8 @@ const Navbar = ({ setOpenModal, typingUsers }: NavbarProps) => {
     }
   }
 
+  console.log(typingUsers)
+
   return (
     <div className='w-full bg-black min-h-[60px] sm:h-[80px] flex items-center'>
       <div className='flex items-center w-full h-full ml-3 sm:ml-5 gap-2 sm:gap-3 min-w-0'>
