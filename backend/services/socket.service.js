@@ -23,7 +23,6 @@ export function initServer(server) {
 
     io.adapter(createAdapter(pubClient, subClient))
 
-    const roomStates = {}
 
 
     io.on("connection", (socket) => {
@@ -54,11 +53,6 @@ export function initServer(server) {
                     language: data?.language || "javascript"
                 })
 
-
-                // roomStates[SocketRoomId] = {
-                //     code: "hello",
-                //     language: data?.language || "javascript"
-                // }
 
                 return callback?.({
                     success: true,
@@ -121,7 +115,6 @@ export function initServer(server) {
 
                 const allUsers = await client.smembers(`room:${roomId}:typing`)
 
-                console.log(allUsers)
 
                 io.to(roomId).emit("typingUpdate", {
                     users: Array.from(allUsers)
@@ -157,23 +150,23 @@ export function initServer(server) {
 
         })
 
-        socket.on("disconnect", () => {
-            try {
-                for (const roomId in roomStates) {
-                    const state = roomStates[roomId]
+        // socket.on("disconnect", () => {
+        //     try {
+        //         for (const roomId in roomStates) {
+        //             const state = roomStates[roomId]
 
-                    if (state?.typingUsers.has(socket.id)) {
-                        state?.typingUsers.delete(socket.id)
-                    }
+        //             if (state?.typingUsers.has(socket.id)) {
+        //                 state?.typingUsers.delete(socket.id)
+        //             }
 
-                    io.to(roomId).emit("typingUpdate", {
-                        users: Array.from(state?.typingUsers)
-                    })
-                }
-            } catch (error) {
-                console.log("Error: ", error)
-            }
-        })
+        //             io.to(roomId).emit("typingUpdate", {
+        //                 users: Array.from(state?.typingUsers)
+        //             })
+        //         }
+        //     } catch (error) {
+        //         console.log("Error: ", error)
+        //     }
+        // })
 
 
         socket.on("logoutRoom", (roomId) => {
@@ -192,7 +185,7 @@ export function initServer(server) {
 
                 const result = await AddUser(roomId, userId, participantId)
 
-                const state = roomStates[roomId]
+                const state = await client.hgetall(`room:${roomId}`)
 
                 return callback?.({
                     success: true,
