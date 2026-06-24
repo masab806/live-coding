@@ -18,8 +18,7 @@ export const initSocket = () => {
             console.log("Disconnected: ", socket?.id)
         })
     }
-
-
+    
     return socket
 }
 

@@ -33,5 +33,16 @@ export type RoomData = {
     _id: string
 }
 
+export type sendOtpType = {
+    email: string
+}
+
+export type resetPasswordType = {
+    email: string,
+    otp: string,
+    password: string,
+    confirmPassword: string
+}
+
 
 
