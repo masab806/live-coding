@@ -9,6 +9,7 @@ import { addUser, initSocket, joinRoom, startTyping, stopTyping } from '../servi
 import { useAuthStore } from '../store/auth.store'
 import type { User } from '../lib/types'
 import { useLocation } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 
 const CodeEditor = () => {
@@ -112,6 +113,7 @@ const CodeEditor = () => {
 
             if (newUser) {
                 console.log("User Added")
+                toast.success("User Added!")
             }
         } catch (error) {
             console.log("An Error Occured: ", error)
@@ -126,7 +128,7 @@ const CodeEditor = () => {
                 <Sidebar openSidebar={openSidebar} setSidebar={setSidebar} roomId={incomingRoomId} />
                 <div className='flex-1 min-w-0'>
                     <Editor
-                        height="50vh"
+                        height="100vh"
                         width="100%"
                         theme='vs-dark'
                         defaultLanguage={incommingLanguage.toLowerCase()}
@@ -135,13 +137,13 @@ const CodeEditor = () => {
                     />
 
                     {/* Terminal */}
-                    <div className='w-full bg-[#080A0E] min-h-[50vh] border-l-2 border-gray-800 overflow-auto'>
+                    {/* <div className='w-full bg-[#080A0E] min-h-[50vh] border-l-2 border-gray-800 overflow-auto'>
                         <div className='border-b-2 border-gray-800'>
                             <ul className='flex items-center p-4'>
                                 <li className='text-white text-base sm:text-lg flex items-center font-syne gap-2'><FileOutputIcon /> Output</li>
                             </ul>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 

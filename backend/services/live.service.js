@@ -49,18 +49,7 @@ export async function ShowRooms() {
 
 export async function AddUser(RoomId, userId, participantId) {
     try {
-        const existingLiveRoom = await liveRooms.findOne({
-            _id: RoomId
-        })
-
-        if (!existingLiveRoom) {
-            return {
-                success: false,
-                message: "Room Doesnt Exist!"
-            }
-        }
-
-        const updateRoom = await liveRooms.updateOne(
+        const updatedRoom = await liveRooms.findOneAndUpdate(
             { _id: RoomId },
             {
                 $addToSet: {
@@ -71,17 +60,27 @@ export async function AddUser(RoomId, userId, participantId) {
                         ]
                     }
                 }
+            },
+            {
+                returnDocument: "after"
             }
         );
+
+        
+        if (!updatedRoom) {
+            return {
+                success: false,
+                message: "Room Doesn't Exist!"
+            };
+        }
 
         return {
             success: true,
             message: "Room Updated",
-            room: updateRoom
-        }
-
+            room: updatedRoom
+        };
     } catch (error) {
-        console.log("An Error Occured While Adding User: ", error)
+        console.log("An Error Occured While Adding User: ", error);
     }
 }
 
@@ -185,16 +184,16 @@ export async function DeleteRoom(roomId) {
         }
 
         await room.deleteOne()
-        
+
 
     } catch (error) {
         console.log("Error While Deleting Room: ", error)
     }
 }
 
-export async function SaveRoomName(roomId, roomName){
+export async function SaveRoomName(roomId, roomName) {
     try {
-        if(!roomId || !roomName){
+        if (!roomId || !roomName) {
             return {
                 success: false,
                 message: "Not Found!"

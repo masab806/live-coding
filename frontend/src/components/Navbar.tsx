@@ -45,6 +45,8 @@ const Navbar = ({ setOpenModal, typingUsers }: NavbarProps) => {
     }
   }
 
+  console.log(typingUsers)
+
   return (
     <div className='w-full bg-black min-h-[60px] sm:h-[80px] flex items-center'>
       <div className='flex items-center w-full h-full ml-3 sm:ml-5 gap-2 sm:gap-3 min-w-0'>
@@ -82,11 +84,11 @@ const Navbar = ({ setOpenModal, typingUsers }: NavbarProps) => {
         <p className='text-white font-syne font-semibold mr-5 text-sm truncate max-w-[300px]'>Room Id: {room?._id}</p>
       </div>
 
-      <div className='flex items-center gap-5 hover:opacity-80 cursor-pointer shrink-0'>
+      {/* <div className='flex items-center gap-5 hover:opacity-80 cursor-pointer shrink-0'>
         <button className='bg-green-600 p-2 sm:p-4 w-[70px] sm:w-[100px] rounded-xl'>
           <p className='text-white text-sm sm:text-lg font-bold font-ubuntu flex items-center gap-1 sm:gap-2 cursor-pointer'><PlayIcon size={16} className='sm:w-5 sm:h-5' /> Run</p>
         </button>
-      </div>
+      </div> */}
 
       <div className='flex items-center gap-5 p-3 sm:p-5 hover:opacity-80 cursor-pointer shrink-0'>
         <button onClick={() => setOpenModal(true)} className='bg-gray-600 p-2 sm:p-4 w-[70px] sm:w-[100px] rounded-xl'>
