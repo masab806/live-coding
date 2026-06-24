@@ -45,6 +45,10 @@ const authService = {
             console.log("Error In Getting Users (Client): ", error)
             throw error
         }
+    },
+
+    resetPassword: async ()=> {
+        
     }
 }
 

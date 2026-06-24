@@ -5,6 +5,7 @@ import HomePage from "../pages/Home";
 import NotFound from "../components/NotFound";
 import ProtectedRoutes from "./protectedRoutes";
 import RoomLobby from "../pages/RoomLobby";
+import ResetPassword from "../pages/ResetPassword";
 
 const router = createBrowserRouter([
    {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
          {
             path: "/create",
             element: <RoomLobby/>,
+         },
+         {
+            path: "/reset",
+            element: <ResetPassword/>
          },
          {
             path: "*",

@@ -150,23 +150,18 @@ export function initServer(server) {
 
         })
 
-        // socket.on("disconnect", () => {
-        //     try {
-        //         for (const roomId in roomStates) {
-        //             const state = roomStates[roomId]
+        socket.on("disconnect", async () => {
+            try {
+                const state = await client.smembers(`room:${SocketRoomId}:typing`)
+                
+                if(state.length){
+                    await client.del(`room:${SocketRoomId}:typing`)
+                }
 
-        //             if (state?.typingUsers.has(socket.id)) {
-        //                 state?.typingUsers.delete(socket.id)
-        //             }
-
-        //             io.to(roomId).emit("typingUpdate", {
-        //                 users: Array.from(state?.typingUsers)
-        //             })
-        //         }
-        //     } catch (error) {
-        //         console.log("Error: ", error)
-        //     }
-        // })
+            } catch (error) {
+                console.log("Error: ", error)
+            }
+        })
 
 
         socket.on("logoutRoom", (roomId) => {
