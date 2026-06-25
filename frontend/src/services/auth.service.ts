@@ -1,5 +1,6 @@
 import api from "../api/api";
-import type { LoginFormData, SignupFormData } from "../lib/types";
+import type { LoginFormData, resetPasswordType, sendOtpType, SignupFormData } from "../lib/types";
+import { useAuthStore } from "../store/auth.store";
 
 const authService = {
     login: async (data: LoginFormData) => {
@@ -33,9 +34,16 @@ const authService = {
         }
     },
 
-    getUsers: async (q: string)=> {
+    getUsers: async (q: string) => {
+
+        const token = useAuthStore.getState().token
+
         try {
-            const res = await api.post("/api/auth/getUsers", {fullName: q})
+            const res = await api.post("/api/auth/getUsers", { fullName: q }, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            })
 
             const responseData = res.data
 
@@ -44,6 +52,34 @@ const authService = {
         } catch (error) {
             console.log("Error In Getting Users (Client): ", error)
             throw error
+        }
+    },
+
+    sendOTP: async (data: sendOtpType) => {
+        try {
+            const res = await api.post("/api/auth/forgot", data)
+
+            const responseData = res.data
+
+            return responseData
+
+        } catch (error: any) {
+            console.log("Error In Sending OTP: ", error)
+            return error.response?.data || { success: false, message: "Internal Server Error" }
+        }
+    },
+
+    resetPassword: async (data: resetPasswordType) => {
+        try {
+            const res = await api.post("/api/auth/reset", data)
+
+            const responseData = res.data
+
+            return responseData
+
+        } catch (error: any) {
+            console.log("Error While Resetting Password: ", error)
+            return error.response?.data || { success: false, message: "Internal Server Error" }
         }
     }
 }
