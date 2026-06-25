@@ -1,8 +1,45 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { resetPasswordSchema, sendOTPSchema } from '../lib/schema'
+import type { sendOtpType } from '../lib/types'
+import authService from '../services/auth.service'
+import toast from 'react-hot-toast'
+import { Circle, LoaderCircle } from 'lucide-react'
 
 const ResetPassword = () => {
 
     const [steps, setSteps] = useState<"1" | "2">("1")
+    const [otpLoading, setotpLoading] = useState<boolean | null>(null)
+
+
+    const {
+        register: registerEmail,
+        handleSubmit: handleEmailSubmit,
+        formState: { errors: emailErrors }
+    } = useForm({
+        resolver: zodResolver(sendOTPSchema)
+    })
+
+    const {
+        register: registerPassword,
+        handleSubmit: handlePasswordSubmit,
+        formState: { errors: passwordErrors }
+    } = useForm({
+        resolver: zodResolver(resetPasswordSchema)
+    })
+
+    const onEmailSubmit = async (data: sendOtpType) => {
+        setotpLoading(true)
+        const result = await authService.sendOTP(data)
+
+        if (result.success) {
+            setSteps("2")
+            setotpLoading(false)
+            toast.success("OTP Sent!")
+        }
+
+    }
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white font-sans flex items-center justify-center px-4">
@@ -27,44 +64,33 @@ const ResetPassword = () => {
 
                 {steps === "1" && (
                     <>
-
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
-                                Email Address
-                            </label>
-                            <input
-                                type="email"
-                                placeholder="e.g. masab@example.com"
-                                className="w-full bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-[#00f5a040] focus:ring-1 focus:ring-[#00f5a015] transition-all"
-                            />
-                            <button className="w-full mt-5 bg-[#00f5a0] hover:bg-[#00e090] active:bg-[#00cc80] text-black font-semibold text-sm rounded-xl py-3 flex items-center justify-center gap-2 transition-colors">
-                                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                                    <path d="M2 7.5h11M8.5 3l4.5 4.5L8.5 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                Send OTP
-                            </button>
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center justify-between">
+                        <form onSubmit={handleEmailSubmit(onEmailSubmit)}>
+                            <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
-                                    OTP Code
+                                    Email Address
                                 </label>
-                                <button className="text-[11px] text-[#00f5a0] hover:text-[#00e090] transition-colors">
-                                    Resend code
+                                <input
+                                    {...registerEmail("email")}
+                                    type="email"
+                                    placeholder="e.g. masab@example.com"
+                                    className="w-full bg-[#1a1a1a] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-[#00f5a040] focus:ring-1 focus:ring-[#00f5a015] transition-all"
+                                />
+                                {emailErrors.email && (<p>{emailErrors.email.message}</p>)}
+                                <button type='submit' className="w-full cursor-pointer mt-5 bg-[#00f5a0] hover:bg-[#00e090] active:bg-[#00cc80] text-black font-semibold text-sm rounded-xl py-3 flex items-center justify-center gap-2 transition-colors">
+                                    {otpLoading ? (
+                                        <p><LoaderCircle className='animate-spin' size={20} /></p>
+                                    ) : (
+                                        <>
+                                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                                                <path d="M2 7.5h11M8.5 3l4.5 4.5L8.5 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                            Send OTP
+                                        </>
+                                    )}
                                 </button>
                             </div>
-                            <div className="flex gap-2">
-                                {[0, 1, 2, 3, 4, 5].map((i) => (
-                                    <input
-                                        key={i}
-                                        type="text"
-                                        maxLength={1}
-                                        className="w-full aspect-square bg-[#1a1a1a] border border-white/[0.08] rounded-lg text-center text-sm text-white outline-none focus:border-[#00f5a040] focus:ring-1 focus:ring-[#00f5a015] transition-all"
-                                    />
-                                ))}
-                            </div>
-                        </div>
+                        </form>
+
 
                     </>
                 )}
@@ -72,6 +98,27 @@ const ResetPassword = () => {
                 {steps === "2" && (
                     <>
                         <div className="flex flex-col gap-4">
+
+                            <div className="flex flex-col gap-1.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
+                                        OTP Code
+                                    </label>
+                                    <button className="text-[11px] text-[#00f5a0] hover:text-[#00e090] transition-colors">
+                                        Resend code
+                                    </button>
+                                </div>
+                                <div className="flex gap-2">
+                                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                                        <input
+                                            key={i}
+                                            type="text"
+                                            maxLength={1}
+                                            className="w-full aspect-square bg-[#1a1a1a] border border-white/[0.08] rounded-lg text-center text-sm text-white outline-none focus:border-[#00f5a040] focus:ring-1 focus:ring-[#00f5a015] transition-all"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
                                     New Password
@@ -112,7 +159,7 @@ const ResetPassword = () => {
                 </p>
 
             </div>
-        </div>
+        </div >
     )
 }
 

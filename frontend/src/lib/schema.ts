@@ -16,6 +16,10 @@ export const SignupSchema = z.object({
     message: "Passwords Donot Match!"
 })
 
+export const sendOTPSchema = z.object({
+    email: z.string().email()
+})
+
 export const resetPasswordSchema = z.object({
     email: z.string().email(),
     otp: z.string().min(6, "Invalid OTP"),

@@ -223,7 +223,6 @@ export async function resetPassword(email, otp, password){
             message: "Password Changed Successfully!"
         }
         
-
     } catch (error) {
         console.log("An Error Occured: ", error)
     }
