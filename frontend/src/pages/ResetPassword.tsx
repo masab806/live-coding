@@ -46,7 +46,7 @@ const ResetPassword = () => {
             toast.success("OTP Sent!")
         } else {
             toast.error(result?.message || "Internal Server Error")
-            setTimeout(()=> {
+            setTimeout(() => {
                 setotpLoading(false)
             }, 5000)
         }
@@ -64,11 +64,25 @@ const ResetPassword = () => {
             navigate("/")
         } else {
             toast.error(result?.message || "Internal Server Error")
-            setTimeout(()=> {
+            setTimeout(() => {
                 setpassLoading(false)
             }, 5000)
         }
 
+    }
+
+    const resendCode = async () => {
+
+        const result = await authService.sendOTP({ email: email })
+
+        if (result.success) {
+            toast.success("OTP Sent!")
+        } else {
+            toast.error(result?.message || "Internal Server Error")
+            setTimeout(() => {
+                setotpLoading(false)
+            }, 5000)
+        }
     }
 
     const handleChange = (index: number, value: string) => {
@@ -150,7 +164,7 @@ const ResetPassword = () => {
                                         <label className="text-[10px] font-semibold tracking-widest text-white/40 uppercase">
                                             OTP Code
                                         </label>
-                                        <button type='button' className="text-[11px] text-[#00f5a0] hover:text-[#00e090] transition-colors">
+                                        <button onClick={()=> resendCode()} type='button' className="text-[11px] cursor-pointer text-[#00f5a0] hover:text-[#00e090] transition-colors">
                                             Resend code
                                         </button>
                                     </div>
